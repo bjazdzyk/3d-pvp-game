@@ -11,6 +11,7 @@ export class CharacterControls{
 
 		// state
 		this.currentAction = this.defaultState
+		this.animationsMap[this.currentAction].play()
 
 		// temporary data
 		this.walkDirection = new THREE.Vector3()
@@ -24,6 +25,33 @@ export class CharacterControls{
 
 
 		this.updateCameraTarget(0, 0)
+	}
+
+	update(delta, keys){
+		const dirPressed = (keys.get('KeyW') || keys.get('KeyS') || keys.get('KeyA') || keys.get('KeyD'))
+
+		let play = ''
+		if(dirPressed){
+			play = 'Run'
+		}else{
+			play = 'Idle'
+		}
+
+		if(this.currentAction != play){
+			const toPlay = this.animationsMap[play]
+			const current = this.animationsMap[this.currentAction]
+
+
+			current.fadeOut(this.fadeDuration)
+			toPlay.reset().fadeIn(this.fadeDuration).play()
+
+			this.currentAction = play
+
+		}
+
+		if(this.mixer){this.mixer.update(delta)}
+
+
 	}
 
 	updateCameraTarget(moveX, moveZ){

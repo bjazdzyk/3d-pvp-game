@@ -42,7 +42,7 @@ scene.add(ambientLight)
 
 const assetLoader = new GLTFLoader();
 
-let mixer, actions={}, activeAction, previousAction;
+let mixer, actions = {}, activeAction, previousAction;
 let walking = false
 let characterControls
 
@@ -99,9 +99,9 @@ function fadeToAction( name, duration ) {
 const clock = new THREE.Clock();
 
 function animate() {
-	if(mixer){
-		mixer.update(clock.getDelta());
-	}
+  if(characterControls){
+    characterControls.update(clock.getDelta(), keys)
+  }
 	renderer.render(scene, camera);
 }
 
