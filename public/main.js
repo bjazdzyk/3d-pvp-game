@@ -1,10 +1,11 @@
 import * as THREE from '/assets/js/three.js';
 import {OrbitControls} from '/assets/js/OrbitControls.js'
 import {GLTFLoader} from '/assets/js/GLTFLoader.js'
+import { CharacterControls } from '/characterControls.js';
 
 const renderer = new THREE.WebGLRenderer();
-
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xA3A3A3);
 
 document.body.appendChild(renderer.domElement);
 
@@ -16,12 +17,14 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
+camera.position.set(5, 5, 5);
 
-renderer.setClearColor(0xA3A3A3);
 
 const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.minDistance = 7
+orbit.maxDistance = 15
 
-camera.position.set(5, 5, 5);
+orbit.maxPolarAngle = Math.PI / 2 - 0.05
 orbit.update();
 
 const grid = new THREE.GridHelper(30, 30);
@@ -41,6 +44,7 @@ const assetLoader = new GLTFLoader();
 
 let mixer, actions={}, activeAction, previousAction;
 let walking = false
+let characterControls
 
 
 assetLoader.load('/assets/Wojownik.glb', function(gltf) {
@@ -60,9 +64,8 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
     const action = mixer.clipAction(clip)
     actions[clip.name] = action
   }
-  console.log(actions)
-  activeAction = actions['Idle']
-  activeAction.play()
+
+  characterControls = new CharacterControls(model, mixer, actions, orbit, camera,  'Idle')
 
 }, undefined, function(error) {
     console.error(error);
@@ -96,27 +99,23 @@ function fadeToAction( name, duration ) {
 const clock = new THREE.Clock();
 
 function animate() {
-  if(mixer){
-    mixer.update(clock.getDelta());
-  }
-  renderer.render(scene, camera);
+	if(mixer){
+		mixer.update(clock.getDelta());
+	}
+	renderer.render(scene, camera);
 }
 
 renderer.setAnimationLoop(animate);
 
 
 
+const keys = new Map()
+
 document.addEventListener("keydown", e =>{
-  if(e.code == "KeyW" && walking == false){
-    fadeToAction('Run', 0.1)
-    walking = true
-  }
+	keys.set(e.code, true)
 })
 document.addEventListener("keyup", e =>{
-  if(e.code == "KeyW" && walking == true){
-    fadeToAction('Idle', 0.3)
-    walking = false
-  }
+	keys.delete(e.code)
 })
 
 
