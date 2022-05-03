@@ -21,14 +21,19 @@ renderer.setClearColor(0xA3A3A3);
 
 const orbit = new OrbitControls(camera, renderer.domElement);
 
-camera.position.set(2, 1.5, 2);
+camera.position.set(5, 5, 5);
 orbit.update();
 
 const grid = new THREE.GridHelper(30, 30);
 scene.add(grid);
 
 
-const ambientLight = new THREE.AmbientLight(0xFFFFFF)
+const dirLight = new THREE.DirectionalLight()
+dirLight.position.set(10, 10, 10)
+dirLight.target.position.set(0, 0, 0)
+scene.add(dirLight)
+scene.add(dirLight.target)
+const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5)
 scene.add(ambientLight)
 
 
@@ -43,6 +48,12 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
   scene.add(model);
   mixer = new THREE.AnimationMixer(model);
   
+
+  gltf.scene.traverse(c =>{
+    c.castShadow = true
+  })
+
+
   const clips = gltf.animations
   for(let i=0; i<clips.length; i++){
     const clip = clips[i]
