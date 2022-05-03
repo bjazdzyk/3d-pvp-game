@@ -34,7 +34,9 @@ scene.add(ambientLight)
 
 const assetLoader = new GLTFLoader();
 
-let mixer, actions={}, activeAction;
+let mixer, actions={}, activeAction, previousAction;
+let walking = false
+
 
 assetLoader.load('/assets/Wojownik.glb', function(gltf) {
   const model = gltf.scene;
@@ -55,7 +57,33 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
     console.error(error);
 });
 
+
+
+function fadeToAction( name, duration ) {
+
+  previousAction = activeAction;
+  activeAction = actions[ name ];
+
+  if ( previousAction !== activeAction ) {
+
+    previousAction.fadeOut( duration );
+
+  }
+
+  activeAction
+    .reset()
+    .setEffectiveTimeScale( 1 )
+    .setEffectiveWeight( 1 )
+    .fadeIn( duration )
+    .play();
+
+}
+
+
+
+
 const clock = new THREE.Clock();
+
 function animate() {
   if(mixer){
     mixer.update(clock.getDelta());
@@ -64,6 +92,23 @@ function animate() {
 }
 
 renderer.setAnimationLoop(animate);
+
+
+
+document.addEventListener("keydown", e =>{
+  if(e.code == "KeyW" && walking == false){
+    fadeToAction('Run', 0.1)
+    walking = true
+  }
+})
+document.addEventListener("keyup", e =>{
+  if(e.code == "KeyW" && walking == true){
+    fadeToAction('Idle', 0.3)
+    walking = false
+  }
+})
+
+
 
 window.addEventListener('resize', function() {
   camera.aspect = window.innerWidth / window.innerHeight;
