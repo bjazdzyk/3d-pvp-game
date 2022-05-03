@@ -17,12 +17,13 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-camera.position.set(5, 5, 5);
+camera.position.set(7, 4, 7);
 
 
 const orbit = new OrbitControls(camera, renderer.domElement);
 orbit.minDistance = 7
 orbit.maxDistance = 15
+orbit.enablePan = false
 
 orbit.maxPolarAngle = Math.PI / 2 - 0.05
 orbit.update();
@@ -109,13 +110,13 @@ renderer.setAnimationLoop(animate);
 
 
 
-const keys = new Map()
+const keys = {}
 
 document.addEventListener("keydown", e =>{
-	keys.set(e.code, true)
+	keys[e.code] = true
 })
 document.addEventListener("keyup", e =>{
-	keys.delete(e.code)
+	keys[e.code] = null
 })
 
 

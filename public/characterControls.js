@@ -1,5 +1,12 @@
 import * as THREE from '/assets/js/three.js';
 
+
+const W = 'KeyW'
+const S = 'KeyS'
+const A = 'KeyA'
+const D = 'KeyD'
+
+
 export class CharacterControls{
 	constructor(model, mixer, animationsMap, orbitControl, camera, defaultState){
 		this.model = model
@@ -20,15 +27,15 @@ export class CharacterControls{
 		this.cameraTarget = new THREE.Vector3()
 
 		// const
-		this.fadeDuration = 0.2
-		this.runVelocity = 5
+		this.fadeDuration = 0.3
+		this.runVelocity = 7
 
 
 		this.updateCameraTarget(0, 0)
 	}
 
 	update(delta, keys){
-		const dirPressed = (keys.get('KeyW') || keys.get('KeyS') || keys.get('KeyA') || keys.get('KeyD'))
+		const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
 
 		let play = ''
 		if(dirPressed){
@@ -49,7 +56,40 @@ export class CharacterControls{
 
 		}
 
-		if(this.mixer){this.mixer.update(delta)}
+		if(this.mixer){
+			this.mixer.update(delta)
+		}
+		if(this.currentAction == 'Run'){
+			//calculate towards camera direction
+			let angleYCameraDirection = Math.atan2(
+                    (this.camera.position.x - this.model.position.x), 
+                    (this.camera.position.z - this.model.position.z))
+			console.log(angleYCameraDirection)
+
+
+			var directionOffset = this.directionOffset(keys)
+
+			//rotate model
+			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + directionOffset)
+            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
+
+            //calculate direction
+            this.camera.getWorldDirection(this.walkDirection)
+            this.walkDirection.y = 0
+            this.walkDirection.normalize()
+            this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset)
+
+            const velocity = this.runVelocity
+
+            //move model & camera
+            const moveX = this.walkDirection.x * velocity * delta
+            const moveZ = this.walkDirection.z * velocity * delta
+            this.model.position.x += moveX
+            this.model.position.z += moveZ
+            this.updateCameraTarget(moveX, moveZ)
+
+
+		}
 
 
 	}
@@ -66,4 +106,30 @@ export class CharacterControls{
 		this.orbitControl.target = this.cameraTarget
 		this.orbitControl.update()
 	}
+
+	directionOffset(keys) {
+        var directionOffset = 0 // w
+
+        if (keys[W]) {
+            if (keys[A]) {
+                directionOffset = Math.PI / 4 // w+a
+            } else if (keys[D]) {
+                directionOffset = - Math.PI / 4 // w+d
+            }
+        } else if (keys[S]) {
+            if (keys[A]) {
+                directionOffset = Math.PI / 4 + Math.PI / 2 // s+a
+            } else if (keys[D]) {
+                directionOffset = -Math.PI / 4 - Math.PI / 2 // s+d
+            } else {
+                directionOffset = Math.PI // s
+            }
+        } else if (keys[A]) {
+            directionOffset = Math.PI / 2 // a
+        } else if (keys[D]) {
+            directionOffset = - Math.PI / 2 // d
+        }
+
+        return directionOffset
+    }
 }
