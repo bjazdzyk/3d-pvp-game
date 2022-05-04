@@ -29,6 +29,8 @@ export class CharacterControls{
 		this.cameraTarget = new THREE.Vector3()
 
 		this.directionOffset = 0
+		this.lockAction = 0
+
 
 		// const
 		this.fadeDurations = {
@@ -56,20 +58,27 @@ export class CharacterControls{
 
 		//controls logics
 		let play = ''
-		if(mouseRightPressed){
-			play = 'ShieldIdle'
+		if(this.lockAction){
+			play = this.currentAction
+			if(this.animationsMap[this.currentAction]._loopCount >= this.lockAction){
+				this.lockAction = 0
+			}
 		}else{
-			if(mouseLeftPressed){
-				play = 'Punch'
+			if(mouseRightPressed){
+				play = 'ShieldIdle'
 			}else{
-				if(dirPressed){
-					play = 'Run'
+				if(mouseLeftPressed){
+					play = 'Punch'
+					this.lockAction = 1
 				}else{
-					play = 'Idle'
+					if(dirPressed){
+						play = 'Run'
+					}else{
+						play = 'Idle'
+					}
 				}
 			}
 		}
-
 
 
 
