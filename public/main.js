@@ -119,7 +119,7 @@ function animate() {
     characterControls.update(clock.getDelta(), keys)
   }
 
-  
+
 	renderer.render(scene, camera);
 }
 
@@ -138,10 +138,10 @@ document.addEventListener("keyup", e =>{
 	keys[e.code] = null
 })
 document.addEventListener('mousedown', e=>{
-  keys['Mouse'] = true
+  keys[`Mouse${e.which}`] = true
 })
 document.addEventListener('mouseup', e=>{
-  keys['Mouse'] = null
+  keys[`Mouse${e.which}`] = null
 })
 
 

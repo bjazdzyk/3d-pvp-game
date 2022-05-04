@@ -5,7 +5,8 @@ const W = 'KeyW'
 const S = 'KeyS'
 const A = 'KeyA'
 const D = 'KeyD'
-const MOUSE = 'Mouse'
+const MOUSEL = 'Mouse1'
+const MOUSER = 'Mouse3'
 
 
 export class CharacterControls{
@@ -27,15 +28,21 @@ export class CharacterControls{
 		this.rotateQuarternion = new THREE.Quaternion()
 		this.cameraTarget = new THREE.Vector3()
 
-		this.playingSingleAction = false
+		this.directionOffset = 0
 
 		// const
-		this.fadeDuration = 0.3
+		this.fadeDurations = {
+			'Run': 0.3,
+			'Idle': 0.2,
+			'Punch': 0.1,
+			'ShieldIdle': 0.1
+		}
 		this.runVelocity = 10
 		this.animationFactors = {
 			'Run': 1.5,
 			'Idle': 1,
 			'Punch': 2,
+			'ShieldIdle': 1
 		}
 
 
@@ -44,17 +51,22 @@ export class CharacterControls{
 
 	update(delta, keys){
 		const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
-		const mousePressed = (!!keys[MOUSE])
+		const mouseLeftPressed = (!!keys[MOUSEL])
+		const mouseRightPressed = (!!keys[MOUSER])
 
 		//controls logics
 		let play = ''
-		if(mousePressed){
-			play = "Punch"
+		if(mouseRightPressed){
+			play = 'ShieldIdle'
 		}else{
-			if(dirPressed){
-				play = 'Run'
+			if(mouseLeftPressed){
+				play = 'Punch'
 			}else{
-				play = 'Idle'
+				if(dirPressed){
+					play = 'Run'
+				}else{
+					play = 'Idle'
+				}
 			}
 		}
 
@@ -66,8 +78,8 @@ export class CharacterControls{
 			const current = this.animationsMap[this.currentAction]
 
 
-			current.fadeOut(this.fadeDuration)
-			toPlay.reset().fadeIn(this.fadeDuration).play()
+			current.fadeOut(this.fadeDurations[play])
+			toPlay.reset().fadeIn(this.fadeDurations[play]).play()
 
 			this.currentAction = play
 
@@ -83,17 +95,19 @@ export class CharacterControls{
                     (this.camera.position.z - this.model.position.z))
 
 
-			var directionOffset = this.directionOffset(keys)
+			if(typeof(this.countDirectionOffset(keys)) == 'number'){
+				this.directionOffset = this.countDirectionOffset(keys)
+			}
 
 			//rotate model
-			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + directionOffset)
+			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
             this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
 
             //calculate direction
             this.camera.getWorldDirection(this.walkDirection)
             this.walkDirection.y = 0
             this.walkDirection.normalize()
-            this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset)
+            this.walkDirection.applyAxisAngle(this.rotateAngle, this.directionOffset)
 
             const velocity = this.runVelocity
 
@@ -105,6 +119,20 @@ export class CharacterControls{
             this.updateCameraTarget(moveX, moveZ)
 
 
+		}
+		if(this.currentAction == 'ShieldIdle'){
+			//calculate towards camera direction
+			let angleYCameraDirection = Math.atan2(
+                    (this.camera.position.x - this.model.position.x), 
+                    (this.camera.position.z - this.model.position.z))
+
+			if(typeof(this.countDirectionOffset(keys)) == 'number'){
+				this.directionOffset = this.countDirectionOffset(keys)
+			}
+
+			//rotate model
+			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
+            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
 		}
 
 
@@ -123,14 +151,17 @@ export class CharacterControls{
 		this.orbitControl.update()
 	}
 
-	directionOffset(keys) {
-        var directionOffset = 0 // w
+	countDirectionOffset(keys) {
+
+		let directionOffset = "nope"
 
         if (keys[W]) {
             if (keys[A]) {
                 directionOffset = Math.PI / 4 // w+a
             } else if (keys[D]) {
                 directionOffset = - Math.PI / 4 // w+d
+            } else{
+            	directionOffset = 0 // w
             }
         } else if (keys[S]) {
             if (keys[A]) {
@@ -144,7 +175,7 @@ export class CharacterControls{
             directionOffset = Math.PI / 2 // a
         } else if (keys[D]) {
             directionOffset = - Math.PI / 2 // d
-        }
+        }else{}
 
         return directionOffset
     }
