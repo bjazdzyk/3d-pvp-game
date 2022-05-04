@@ -5,6 +5,7 @@ const W = 'KeyW'
 const S = 'KeyS'
 const A = 'KeyA'
 const D = 'KeyD'
+const MOUSE = 'Mouse'
 
 
 export class CharacterControls{
@@ -26,10 +27,16 @@ export class CharacterControls{
 		this.rotateQuarternion = new THREE.Quaternion()
 		this.cameraTarget = new THREE.Vector3()
 
+		this.playingSingleAction = false
+
 		// const
 		this.fadeDuration = 0.3
 		this.runVelocity = 10
-		this.runAnimationFactor = 1.5
+		this.animationFactors = {
+			'Run': 1.5,
+			'Idle': 1,
+			'Punch': 2,
+		}
 
 
 		this.updateCameraTarget(0, 0)
@@ -37,13 +44,22 @@ export class CharacterControls{
 
 	update(delta, keys){
 		const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
+		const mousePressed = (!!keys[MOUSE])
 
+		//controls logics
 		let play = ''
-		if(dirPressed){
-			play = 'Run'
+		if(mousePressed){
+			play = "Punch"
 		}else{
-			play = 'Idle'
+			if(dirPressed){
+				play = 'Run'
+			}else{
+				play = 'Idle'
+			}
 		}
+
+
+
 
 		if(this.currentAction != play){
 			const toPlay = this.animationsMap[play]
@@ -58,11 +74,7 @@ export class CharacterControls{
 		}
 
 		if(this.mixer){
-			if(this.currentAction == 'Run'){
-				this.mixer.update(delta * this.runAnimationFactor)
-			}else{
-				this.mixer.update(delta)
-			}
+			this.mixer.update(delta * this.animationFactors[this.currentAction])
 		}
 		if(this.currentAction == 'Run'){
 			//calculate towards camera direction

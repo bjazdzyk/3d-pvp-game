@@ -28,11 +28,11 @@ document.addEventListener( 'click', function () {
 } );
 
 pointerLock.addEventListener( 'lock', function () {
-  menu.style.display = 'none';
+  //
 } );
 
 pointerLock.addEventListener( 'unlock', function () {
-  menu.style.display = 'block';
+  //
 } );
 
 const orbit = new OrbitControls(camera, renderer.domElement);
@@ -119,10 +119,13 @@ function animate() {
     characterControls.update(clock.getDelta(), keys)
   }
 
+  
 	renderer.render(scene, camera);
 }
 
 renderer.setAnimationLoop(animate);
+
+
 
 
 
@@ -133,6 +136,12 @@ document.addEventListener("keydown", e =>{
 })
 document.addEventListener("keyup", e =>{
 	keys[e.code] = null
+})
+document.addEventListener('mousedown', e=>{
+  keys['Mouse'] = true
+})
+document.addEventListener('mouseup', e=>{
+  keys['Mouse'] = null
 })
 
 
