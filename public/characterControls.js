@@ -29,7 +29,7 @@ export class CharacterControls{
 		// const
 		this.fadeDuration = 0.3
 		this.runVelocity = 10
-		this.runAnimationFactor = 5/3
+		this.runAnimationFactor = 1.5
 
 
 		this.updateCameraTarget(0, 0)
@@ -69,7 +69,6 @@ export class CharacterControls{
 			let angleYCameraDirection = Math.atan2(
                     (this.camera.position.x - this.model.position.x), 
                     (this.camera.position.z - this.model.position.z))
-			console.log(angleYCameraDirection)
 
 
 			var directionOffset = this.directionOffset(keys)

@@ -2,6 +2,7 @@ import * as THREE from '/assets/js/three.js';
 import {OrbitControls} from '/assets/js/OrbitControls.js'
 import {GLTFLoader} from '/assets/js/GLTFLoader.js'
 import { CharacterControls } from '/characterControls.js';
+import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -20,13 +21,27 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(12, 15, 12);
 
 
+const pointerLock = new PointerLockControls( camera, document.body)
+
+document.addEventListener( 'click', function () {
+  pointerLock.lock();
+} );
+
+pointerLock.addEventListener( 'lock', function () {
+  menu.style.display = 'none';
+} );
+
+pointerLock.addEventListener( 'unlock', function () {
+  menu.style.display = 'block';
+} );
+
 const orbit = new OrbitControls(camera, renderer.domElement);
 orbit.minDistance = 10
 orbit.maxDistance = 15
 orbit.enablePan = false
-
 orbit.maxPolarAngle = Math.PI / 2 - 0.05
 orbit.update();
+
 
 const grid = new THREE.GridHelper(50, 50);
 scene.add(grid);
@@ -103,6 +118,7 @@ function animate() {
   if(characterControls){
     characterControls.update(clock.getDelta(), keys)
   }
+
 	renderer.render(scene, camera);
 }
 
@@ -117,6 +133,13 @@ document.addEventListener("keydown", e =>{
 })
 document.addEventListener("keyup", e =>{
 	keys[e.code] = null
+})
+
+
+document.addEventListener('mousemove', e =>{
+  camera.translateX(e.movementX/-15)
+  camera.translateY(e.movementY/20)
+  orbit.update()
 })
 
 
