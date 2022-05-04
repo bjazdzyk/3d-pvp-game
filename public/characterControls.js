@@ -28,7 +28,8 @@ export class CharacterControls{
 
 		// const
 		this.fadeDuration = 0.3
-		this.runVelocity = 7
+		this.runVelocity = 10
+		this.runAnimationFactor = 5/3
 
 
 		this.updateCameraTarget(0, 0)
@@ -57,7 +58,11 @@ export class CharacterControls{
 		}
 
 		if(this.mixer){
-			this.mixer.update(delta)
+			if(this.currentAction == 'Run'){
+				this.mixer.update(delta * this.runAnimationFactor)
+			}else{
+				this.mixer.update(delta)
+			}
 		}
 		if(this.currentAction == 'Run'){
 			//calculate towards camera direction

@@ -12,32 +12,32 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-    45,
+    40,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
 );
-camera.position.set(7, 4, 7);
+camera.position.set(12, 15, 12);
 
 
 const orbit = new OrbitControls(camera, renderer.domElement);
-orbit.minDistance = 7
+orbit.minDistance = 10
 orbit.maxDistance = 15
 orbit.enablePan = false
 
 orbit.maxPolarAngle = Math.PI / 2 - 0.05
 orbit.update();
 
-const grid = new THREE.GridHelper(30, 30);
+const grid = new THREE.GridHelper(50, 50);
 scene.add(grid);
 
 
 const dirLight = new THREE.DirectionalLight()
-dirLight.position.set(10, 10, 10)
+dirLight.position.set(0, 10, 0)
 dirLight.target.position.set(0, 0, 0)
 scene.add(dirLight)
 scene.add(dirLight.target)
-const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5)
+const ambientLight = new THREE.AmbientLight(0xFFFFFF)
 scene.add(ambientLight)
 
 
