@@ -9,7 +9,6 @@ const MOUSEL = 'Mouse1'
 const MOUSER = 'Mouse3'
 
 
-let socket = io();
 
 
 export class CharacterControls{
@@ -54,8 +53,19 @@ export class CharacterControls{
 		this.updateCameraTarget(0, 0)
 	}
 
-	sendData(keys){
-		socket.emit('requestUpdate', keys)
+	sendData(socket, keys){
+		socket.emit('requestUpdate', [keys, this.walkDirection.x, this.walkDirection.z])
+	}
+
+	updateMovement(x, y, z){
+		const velocity = this.runVelocity
+
+	    //move model & camera
+	    const deltaX = x - this.model.position.x
+	    const deltaZ = z - this.model.position.z
+
+	    this.model.position.set(x, y, z)
+	    this.updateCameraTarget(deltaX, deltaZ)
 	}
 
 	update(delta, keys, action){
@@ -97,17 +107,6 @@ export class CharacterControls{
             this.walkDirection.y = 0
             this.walkDirection.normalize()
             this.walkDirection.applyAxisAngle(this.rotateAngle, this.directionOffset)
-
-            const velocity = this.runVelocity
-
-            //move model & camera
-            const moveX = this.walkDirection.x * velocity * delta
-            const moveZ = this.walkDirection.z * velocity * delta
-            this.model.position.x += moveX
-            this.model.position.z += moveZ
-            this.updateCameraTarget(moveX, moveZ)
-
-
 		}
 		if(this.currentAction == 'ShieldIdle'){
 			//calculate towards camera direction

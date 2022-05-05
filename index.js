@@ -24,9 +24,11 @@ const playersData = {}
 
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle"}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.1}
 
-  socket.on('requestUpdate', (keys)=>{
+  socket.on('requestUpdate', (Data)=>{
+
+    const keys = Data[0]
 
     playersData[socket.id].keys = keys
 
@@ -50,9 +52,23 @@ io.on('connection', (socket) => {
     }
 
     playersData[socket.id].currentAction = play
-    console.log(playersData)
 
-    io.emit("Data", [socket.id, playersData])
+    if(dirPressed){
+      const dirX = Data[1]
+      const dirZ = Data[2]
+
+      const vectorLength = Math.sqrt(dirX*dirX + dirZ*dirZ)
+
+      const newDirX = dirX / vectorLength * playersData[socket.id].runVelocity
+      const newDirZ = dirZ / vectorLength * playersData[socket.id].runVelocity
+
+      playersData[socket.id].walkDirection = {x:newDirX, y:0, z:newDirZ}
+    }
+
+    
+
+
+    
   })
 
   socket.on('disconnect', () => {
@@ -60,6 +76,29 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 });
+
+
+const loop = setInterval(()=>{
+  for(let i in playersData){
+    if(playersData[i] != "disconnected"){
+      if(playersData[i].currentAction == "Run"){
+
+        if(playersData[i].walkDirection.x){
+          playersData[i].position.x += playersData[i].walkDirection.x
+
+        }if(playersData[i].walkDirection.z){
+          playersData[i].position.z += playersData[i].walkDirection.z
+
+        }
+      }
+    }
+  }
+
+
+  io.emit("Data", [playersData])
+}, 10)
+
+
 
 
 server.listen(app.get('port'), function(err) {

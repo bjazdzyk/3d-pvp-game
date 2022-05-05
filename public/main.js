@@ -147,7 +147,7 @@ function animate() {
 
     const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER])
     if(needsUpdate){
-      socket.emit('requestUpdate', keys)
+      Bob.characterControls.sendData(socket, keys)
     }
 
   }
@@ -157,11 +157,22 @@ function animate() {
 }
 
 socket.on("Data", (Data)=>{
-  const socketId = Data[0]
-  const playersData = Data[1]
+  
+  const playersData = Data[0]
 
-  Bob.id = socketId
-  Bob.currentAction = playersData[socketId].currentAction
+  //animations
+  if(Bob){
+    Bob.currentAction = playersData[socket.id].currentAction
+  }
+
+  //movement
+  if(Bob){
+
+    const x = playersData[socket.id].position.x
+    const y = playersData[socket.id].position.y
+    const z = playersData[socket.id].position.z
+    Bob.characterControls.updateMovement(x, y, z)
+  }
 })
 
 renderer.setAnimationLoop(animate);
@@ -177,7 +188,7 @@ document.addEventListener("keydown", e =>{
 document.addEventListener("keyup", e =>{
 	keys[e.code] = null
   if(characterControls){
-    characterControls.sendData(keys)
+    Bob.characterControls.sendData(socket, keys)
   }
 })
 document.addEventListener('mousedown', e=>{
@@ -186,7 +197,7 @@ document.addEventListener('mousedown', e=>{
 document.addEventListener('mouseup', e=>{
   keys[`Mouse${e.which}`] = null
   if(characterControls){
-    characterControls.sendData(keys)
+    Bob.characterControls.sendData(socket, keys)
   }
 })
 
