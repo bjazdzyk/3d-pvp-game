@@ -9,6 +9,9 @@ const MOUSEL = 'Mouse1'
 const MOUSER = 'Mouse3'
 
 
+let socket = io();
+
+
 export class CharacterControls{
 	constructor(model, mixer, animationsMap, orbitControl, camera, defaultState){
 		this.model = model
@@ -51,36 +54,13 @@ export class CharacterControls{
 		this.updateCameraTarget(0, 0)
 	}
 
-	update(delta, keys){
-		const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
-		const mouseLeftPressed = (!!keys[MOUSEL])
-		const mouseRightPressed = (!!keys[MOUSER])
+	sendData(keys){
+		socket.emit('requestUpdate', keys)
+	}
 
-		//controls logics
-		let play = ''
-		if(this.lockAction){
-			play = this.currentAction
-			if(this.animationsMap[this.currentAction]._loopCount >= this.lockAction){
-				this.lockAction = 0
-			}
-		}else{
-			if(mouseRightPressed){
-				play = 'ShieldIdle'
-			}else{
-				if(mouseLeftPressed){
-					play = 'Punch'
-					this.lockAction = 1
-				}else{
-					if(dirPressed){
-						play = 'Run'
-					}else{
-						play = 'Idle'
-					}
-				}
-			}
-		}
-
-
+	update(delta, keys, action){
+		
+		const play = action
 
 		if(this.currentAction != play){
 			const toPlay = this.animationsMap[play]

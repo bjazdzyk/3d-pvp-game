@@ -5,6 +5,13 @@ import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 
 
+const W = 'KeyW'
+const S = 'KeyS'
+const A = 'KeyA'
+const D = 'KeyD'
+const MOUSEL = 'Mouse1'
+const MOUSER = 'Mouse3'
+
 
 let socket = io();
 
@@ -62,9 +69,23 @@ scene.add(ambientLight)
 
 const assetLoader = new GLTFLoader();
 
+class Player{
+  constructor(id, mod, mix, CControls){
+    this.id = id
+    this.model = mod
+    this.mixer = mix
+    this.characterControls = CControls
+
+    this.currentAction = "Idle"
+  }
+}
+
+
+
 let mixer, actions = {}, activeAction, previousAction;
 let walking = false
 let characterControls
+let Bob
 
 
 assetLoader.load('/assets/Wojownik.glb', function(gltf) {
@@ -86,6 +107,7 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
   }
 
   characterControls = new CharacterControls(model, mixer, actions, orbit, camera,  'Idle')
+  Bob = new Player(socket.id, model, mixer, characterControls)
 
 }, undefined, function(error) {
     console.error(error);
@@ -120,15 +142,29 @@ const clock = new THREE.Clock();
 
 function animate() {
   if(characterControls){
-    characterControls.update(clock.getDelta(), keys)
+
+    Bob.characterControls.update(clock.getDelta(), keys, Bob.currentAction)
+
+    const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER])
+    if(needsUpdate){
+      socket.emit('requestUpdate', keys)
+    }
+
   }
 
 
 	renderer.render(scene, camera);
 }
 
-renderer.setAnimationLoop(animate);
+socket.on("Data", (Data)=>{
+  const socketId = Data[0]
+  const playersData = Data[1]
 
+  Bob.id = socketId
+  Bob.currentAction = playersData[socketId].currentAction
+})
+
+renderer.setAnimationLoop(animate);
 
 
 
@@ -140,12 +176,18 @@ document.addEventListener("keydown", e =>{
 })
 document.addEventListener("keyup", e =>{
 	keys[e.code] = null
+  if(characterControls){
+    characterControls.sendData(keys)
+  }
 })
 document.addEventListener('mousedown', e=>{
   keys[`Mouse${e.which}`] = true
 })
 document.addEventListener('mouseup', e=>{
   keys[`Mouse${e.which}`] = null
+  if(characterControls){
+    characterControls.sendData(keys)
+  }
 })
 
 
