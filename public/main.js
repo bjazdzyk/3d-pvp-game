@@ -4,6 +4,10 @@ import {GLTFLoader} from '/assets/js/GLTFLoader.js'
 import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 
+
+
+let socket = io();
+
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xA3A3A3);
