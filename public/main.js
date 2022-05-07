@@ -3,7 +3,7 @@ import {OrbitControls} from '/assets/js/OrbitControls.js'
 import {GLTFLoader} from '/assets/js/GLTFLoader.js'
 import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
-
+import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
 
 const W = 'KeyW'
 const S = 'KeyS'
@@ -82,14 +82,14 @@ class Player{
 
 
 
-let mixer, actions = {}, activeAction, previousAction;
+let model, mixer, actions = {};
 let walking = false
 let characterControls
 let Bob
-
+let clips
 
 assetLoader.load('/assets/Wojownik.glb', function(gltf) {
-  const model = gltf.scene;
+  model = gltf.scene;
   scene.add(model);
   mixer = new THREE.AnimationMixer(model);
   
@@ -99,7 +99,7 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
   })
 
 
-  const clips = gltf.animations
+  clips = gltf.animations
   for(let i=0; i<clips.length; i++){
     const clip = clips[i]
     const action = mixer.clipAction(clip)
@@ -115,32 +115,14 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
 
 
 
-function fadeToAction( name, duration ) {
-
-  previousAction = activeAction;
-  activeAction = actions[ name ];
-
-  if ( previousAction !== activeAction ) {
-
-    previousAction.fadeOut( duration );
-
-  }
-
-  activeAction
-    .reset()
-    .setEffectiveTimeScale( 1 )
-    .setEffectiveWeight( 1 )
-    .fadeIn( duration )
-    .play();
-
-}
 
 
-
+const playerModels = {}
 
 const clock = new THREE.Clock();
 
 function animate() {
+
   if(characterControls){
 
     Bob.characterControls.update(clock.getDelta(), keys, Bob.currentAction)
@@ -151,12 +133,11 @@ function animate() {
     }
 
   }
-
-
 	renderer.render(scene, camera);
 }
 
 socket.on("Data", (Data)=>{
+
   
   const playersData = Data[0]
 
@@ -172,6 +153,32 @@ socket.on("Data", (Data)=>{
     const y = playersData[socket.id].position.y
     const z = playersData[socket.id].position.z
     Bob.characterControls.updateMovement(x, y, z)
+  }
+
+  for(let i in playersData){
+
+    if(playersData[i] == "disconnected"){
+      if(playerModels[i]){
+        scene.remove(playerModels[i])
+        playerModels[i] = null
+      }
+    }else{
+      if(playerModels[i]){
+        playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
+      }else{
+        if(i == socket.id){
+
+        }else{
+          if(model){
+            const playerClone = SkeletonUtils.clone(model)
+            playerClone.position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
+            scene.add(playerClone)
+            playerModels[i] = playerClone
+          }
+
+        }
+      }
+    }
   }
 })
 

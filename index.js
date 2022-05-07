@@ -65,6 +65,10 @@ io.on('connection', (socket) => {
       playersData[socket.id].walkDirection = {x:newDirX, y:0, z:newDirZ}
     }
 
+
+    const rotation = Data[3]
+    playersData[socket.id].rotation = rotation
+
     
 
 

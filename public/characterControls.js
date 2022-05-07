@@ -54,7 +54,7 @@ export class CharacterControls{
 	}
 
 	sendData(socket, keys){
-		socket.emit('requestUpdate', [keys, this.walkDirection.x, this.walkDirection.z])
+		socket.emit('requestUpdate', [keys, this.walkDirection.x, this.walkDirection.z, {x:this.model.rotation.x, y:this.model.rotation.y, z:this.model.rotation.z}])
 	}
 
 	updateMovement(x, y, z){
