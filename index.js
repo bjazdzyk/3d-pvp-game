@@ -101,7 +101,7 @@ const loop = setInterval(()=>{
 
 const sendData = setInterval(()=>{
   io.emit("Data", [playersData])
-}, 30)
+}, 70)
 
 
 
