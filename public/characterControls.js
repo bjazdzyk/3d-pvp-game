@@ -11,6 +11,8 @@ const MOUSER = 'Mouse3'
 
 
 
+
+
 export class CharacterControls{
 	constructor(model, mixer, animationsMap, orbitControl, camera, defaultState){
 		this.model = model

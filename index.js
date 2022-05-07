@@ -24,7 +24,7 @@ const playersData = {}
 
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.7}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.1}
 
   socket.on('requestUpdate', (Data)=>{
 
@@ -97,11 +97,11 @@ const loop = setInterval(()=>{
       }
     }
   }
+}, 10)
 
-
+const sendData = setInterval(()=>{
   io.emit("Data", [playersData])
-}, 100)
-
+}, 30)
 
 
 
