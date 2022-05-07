@@ -116,16 +116,30 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
 
 
 
-
+let playersData = {}
 const playerModels = {}
+const playerMixers = {}
+const playerActions = {}
+const playerCurrentActions = {}
+
 
 const clock = new THREE.Clock();
 
 function animate() {
 
+  const delta = clock.getDelta()
+
+  for(let i in playersData){
+    if(playerMixers[i]){
+      if(i != socket.id && characterControls){
+        playerMixers[i].update(delta * characterControls.animationFactors[playerCurrentActions[i] ])
+      }
+    }
+  }
+
   if(characterControls){
 
-    Bob.characterControls.update(clock.getDelta(), keys, Bob.currentAction)
+    Bob.characterControls.update(delta, keys, Bob.currentAction)
 
     const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER])
     if(needsUpdate){
@@ -136,10 +150,16 @@ function animate() {
 	renderer.render(scene, camera);
 }
 
+
+
+
+
+
+
 socket.on("Data", (Data)=>{
 
   
-  const playersData = Data[0]
+  playersData = Data[0]
 
   //animations
   if(Bob){
@@ -165,7 +185,20 @@ socket.on("Data", (Data)=>{
     }else{
       if(playerModels[i]){
         playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
-      }else{
+
+
+        if(playersData[i].currentAction != playerCurrentActions[i]){
+          const toPlay = playerActions[i][playersData[i].currentAction]
+          const current = playerActions[i][playerCurrentActions[i]]
+
+          console.log(playersData[i].currentAction, playerCurrentActions[i])
+          current.fadeOut(characterControls.fadeDurations[playersData[i].currentAction])
+          toPlay.reset().fadeIn(characterControls.fadeDurations[playersData[i].currentAction]).play()
+
+          playerCurrentActions[i] = playersData[i].currentAction
+
+        }
+      }else{//nowy gracz
         if(i == socket.id){
 
         }else{
@@ -174,6 +207,25 @@ socket.on("Data", (Data)=>{
             playerClone.position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
             scene.add(playerClone)
             playerModels[i] = playerClone
+
+            const cloneMixer = new THREE.AnimationMixer(playerClone);
+            const cloneActions = {}
+
+            for(let i=0; i<clips.length; i++){
+              const clip = clips[i]
+              const action = cloneMixer.clipAction(clip)
+              cloneActions[clip.name] = action
+            }
+
+            
+            playerCurrentActions[i] = playersData[i].currentAction
+            playerMixers[i] = cloneMixer
+            playerActions[i] = cloneActions
+
+            playerActions[i][playerCurrentActions[i]].play()
+
+
+            
           }
 
         }
