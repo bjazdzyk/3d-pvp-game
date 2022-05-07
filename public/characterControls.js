@@ -101,6 +101,7 @@ export class CharacterControls{
 			//rotate model
 			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
             this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
+            //console.log(this.model.rotation)
 
             //calculate direction
             this.camera.getWorldDirection(this.walkDirection)

@@ -24,7 +24,7 @@ const playersData = {}
 
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.1}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.7}
 
   socket.on('requestUpdate', (Data)=>{
 
@@ -69,6 +69,7 @@ io.on('connection', (socket) => {
     const rotation = Data[3]
     playersData[socket.id].rotation = rotation
 
+
     
 
 
@@ -77,7 +78,6 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     playersData[socket.id] = "disconnected"
-    console.log('user disconnected');
   });
 });
 
@@ -100,7 +100,7 @@ const loop = setInterval(()=>{
 
 
   io.emit("Data", [playersData])
-}, 10)
+}, 100)
 
 
 

@@ -185,13 +185,19 @@ socket.on("Data", (Data)=>{
     }else{
       if(playerModels[i]){
         playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
+        const rotation = playersData[i].rotation
+        if(rotation){
+          playerModels[i].rotation.x = playersData[i].rotation.x
+          playerModels[i].rotation.y = playersData[i].rotation.y
+          playerModels[i].rotation.z = playersData[i].rotation.z
+        }
 
 
         if(playersData[i].currentAction != playerCurrentActions[i]){
           const toPlay = playerActions[i][playersData[i].currentAction]
           const current = playerActions[i][playerCurrentActions[i]]
 
-          console.log(playersData[i].currentAction, playerCurrentActions[i])
+          //console.log(playersData[i].currentAction, playerCurrentActions[i])
           current.fadeOut(characterControls.fadeDurations[playersData[i].currentAction])
           toPlay.reset().fadeIn(characterControls.fadeDurations[playersData[i].currentAction]).play()
 
