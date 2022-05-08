@@ -72,7 +72,7 @@ io.on('connection', (socket) => {
 
     
 
-
+    io.emit("Data", [playersData])
     
   })
 
@@ -98,10 +98,6 @@ const loop = setInterval(()=>{
     }
   }
 }, 10)
-
-const sendData = setInterval(()=>{
-  io.emit("Data", [playersData])
-}, 70)
 
 
 

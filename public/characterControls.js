@@ -59,8 +59,7 @@ export class CharacterControls{
 		socket.emit('requestUpdate', [keys, this.walkDirection.x, this.walkDirection.z, {x:this.model.rotation.x, y:this.model.rotation.y, z:this.model.rotation.z}])
 	}
 
-	updateMovement(x, y, z){
-		const velocity = this.runVelocity
+	updateMovement(x, y, z, velocity){
 
 	    //move model & camera
 	    const deltaX = x - this.model.position.x
