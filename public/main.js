@@ -17,7 +17,7 @@ let socket = io();
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xA3A3A3);
+renderer.setClearColor("skyblue");
 
 document.body.appendChild(renderer.domElement);
 

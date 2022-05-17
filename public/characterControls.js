@@ -126,22 +126,6 @@ export class CharacterControls{
             this.walkDirection.normalize()
             this.walkDirection.applyAxisAngle(this.rotateAngle, this.directionOffset)
 		}
-		if(this.currentAction == 'ShieldIdle'){
-			//calculate towards camera direction
-			let angleYCameraDirection = Math.atan2(
-                    (this.camera.position.x - this.model.position.x), 
-                    (this.camera.position.z - this.model.position.z))
-
-			if(typeof(this.countDirectionOffset(keys)) == 'number'){
-				this.directionOffset = this.countDirectionOffset(keys)
-			}
-
-			//rotate model
-			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
-            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
-		}
-
-
 	}
 
 	updateCameraTarget(moveX, moveZ){
