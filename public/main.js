@@ -95,6 +95,9 @@ scene.add( plane );
 
 
 
+
+
+
 //light
 const dirLight = new THREE.DirectionalLight()
 dirLight.position.set(0, 10, 0)
@@ -128,20 +131,19 @@ class Player{
 
 
 
-
-//loading player model
 const assetLoader = new GLTFLoader();
+//loading player model
 
-let model, mixer, actions = {};
+let playerModel, mixer, actions = {};
 let walking = false
 let characterControls
 let Bob
 let clips
 
 assetLoader.load('/assets/Wojownik.glb', function(gltf) {
-  model = gltf.scene;
-  scene.add(model);
-  mixer = new THREE.AnimationMixer(model);
+  playerModel = gltf.scene;
+  scene.add(playerModel);
+  mixer = new THREE.AnimationMixer(playerModel);
   
 
   gltf.scene.traverse(c =>{
@@ -156,12 +158,52 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
     actions[clip.name] = action
   }
 
-  characterControls = new CharacterControls(model, mixer, actions, orbit, camera,  'Idle')
-  Bob = new Player(socket.id, model, mixer, characterControls)
+  characterControls = new CharacterControls(playerModel, mixer, actions, orbit, camera,  'Idle')
+  Bob = new Player(socket.id, playerModel, mixer, characterControls)
 
 }, undefined, function(error) {
     console.error(error);
 });
+
+
+
+
+
+//loading fence model & cloning
+const arenaSize = 75
+const fenceOffset = 7.5
+let fenceModel
+
+
+assetLoader.load('/assets/fence.glb', function(gltf) {
+  fenceModel = gltf.scene
+  //scene.add(fenceModel)
+
+
+  for(let i=-arenaSize/2+fenceOffset; i<arenaSize/2+fenceOffset; i+=fenceOffset){
+    const fenceCloneN = SkeletonUtils.clone(fenceModel)
+    fenceCloneN.position.set(-arenaSize/2, 0, i)
+
+    const fenceCloneE = SkeletonUtils.clone(fenceModel)
+    fenceCloneE.position.set(i, 0, arenaSize/2)
+    fenceCloneE.rotation.y = Math.PI/2
+
+    const fenceCloneS = SkeletonUtils.clone(fenceModel)
+    fenceCloneS.position.set(arenaSize/2, 0, i)
+
+    const fenceCloneW = SkeletonUtils.clone(fenceModel)
+    fenceCloneW.position.set(i, 0, -arenaSize/2)
+    fenceCloneW.rotation.y = Math.PI/2
+    scene.add(fenceCloneN, fenceCloneE, fenceCloneS, fenceCloneW)
+  }
+
+
+  gltf.scene.traverse(c =>{
+    c.castShadow = true
+  })
+}, undefined, function(error) {
+    console.error(error);
+})
 
 
 
@@ -264,8 +306,8 @@ socket.on("Data", (Data)=>{
         if(i == socket.id){
 
         }else{
-          if(model){
-            const playerClone = SkeletonUtils.clone(model)
+          if(playerModel){
+            const playerClone = SkeletonUtils.clone(playerModel)
             playerClone.position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
             scene.add(playerClone)
             playerModels[i] = playerClone
