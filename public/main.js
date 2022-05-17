@@ -160,7 +160,6 @@ socket.on("Data", (Data)=>{
 
   
   playersData = Data[0]
-  console.log(playersData)
 
   //animations
   if(Bob){

@@ -32,6 +32,7 @@ export class CharacterControls{
 		this.rotateQuarternion = new THREE.Quaternion()
 		this.cameraTarget = new THREE.Vector3()
 
+		this.punched = false
 		this.directionOffset = 0
 		this.lockAction = 0
 
@@ -70,8 +71,21 @@ export class CharacterControls{
 	}
 
 	update(delta, keys, action){
+
+		let play = action
+
+		if(play == "Punch" && Math.abs(this.animationsMap[play].time-0.7)<0.1 && !this.punched){
+			console.log(this.animationsMap[play].time)
+			this.punched = 1
+		}
+		// if(play == "Punch" && this.animationsMap[play]._loopCount>0){
+		// 	play = "Idle"
+		// }
+		// if(play !="Punch"){
+		// 	this.punched = 0
+		// }
 		
-		const play = action
+		
 
 		if(this.currentAction != play){
 			const toPlay = this.animationsMap[play]
@@ -80,6 +94,8 @@ export class CharacterControls{
 
 			current.fadeOut(this.fadeDurations[play])
 			toPlay.reset().fadeIn(this.fadeDurations[play]).play()
+
+			//console.log(this.animationsMap[this.currentAction])
 
 			this.currentAction = play
 
