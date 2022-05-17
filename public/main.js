@@ -25,16 +25,16 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-    40,
+    55,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
 );
-camera.position.set(12, 15, 12);
+camera.position.set(100, 90, 100);
 
 const orbit = new OrbitControls(camera, renderer.domElement);
-orbit.minDistance = 10
-orbit.maxDistance = 15
+orbit.minDistance = 5
+orbit.maxDistance = 12
 orbit.enablePan = false
 orbit.maxPolarAngle = Math.PI / 2 - 0.05
 orbit.enableZoom = false
@@ -80,8 +80,8 @@ planeTexture.magFilter = THREE.NearestFilter;
 planeTexture.minFilter = THREE.NearestMipmapNearestFilter;
 planeTexture.wrapS = planeTexture.wrapT = THREE.RepeatWrapping;
 planeTexture.offset.set( 0, 0 );
-planeTexture.repeat.set( 5000, 5000 );
-const planeGeometry = new THREE.PlaneGeometry( 10000, 10000 )
+planeTexture.repeat.set( 500, 500 );
+const planeGeometry = new THREE.PlaneGeometry( 1000, 1000 )
 const planeMaterial = new THREE.MeshBasicMaterial({
   map: planeTexture,
 });
