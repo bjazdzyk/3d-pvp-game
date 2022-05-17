@@ -15,6 +15,7 @@ const MOUSER = 'Mouse3'
 
 let socket = io();
 
+//three js setup
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor("skyblue");
@@ -31,7 +32,21 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(12, 15, 12);
 
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.minDistance = 10
+orbit.maxDistance = 15
+orbit.enablePan = false
+orbit.maxPolarAngle = Math.PI / 2 - 0.05
+orbit.enableZoom = false
+orbit.update();
 
+
+
+
+
+
+
+//pointerLock & resize events
 const pointerLock = new PointerLockControls( camera, document.body)
 
 document.addEventListener( 'click', function () {
@@ -45,19 +60,42 @@ pointerLock.addEventListener( 'lock', function () {
 pointerLock.addEventListener( 'unlock', function () {
   //
 } );
-
-const orbit = new OrbitControls(camera, renderer.domElement);
-orbit.minDistance = 10
-orbit.maxDistance = 15
-orbit.enablePan = false
-orbit.maxPolarAngle = Math.PI / 2 - 0.05
-orbit.update();
+window.addEventListener('resize', function() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 
-const grid = new THREE.GridHelper(50, 50);
-scene.add(grid);
 
 
+
+
+
+//grass
+const loader = new THREE.TextureLoader()
+const planeTexture = loader.load('assets/grass.png')
+planeTexture.anisotropy = 0
+planeTexture.magFilter = THREE.NearestFilter;
+planeTexture.minFilter = THREE.NearestMipmapNearestFilter;
+planeTexture.wrapS = planeTexture.wrapT = THREE.RepeatWrapping;
+planeTexture.offset.set( 0, 0 );
+planeTexture.repeat.set( 5000, 5000 );
+const planeGeometry = new THREE.PlaneGeometry( 10000, 10000 )
+const planeMaterial = new THREE.MeshBasicMaterial({
+  map: planeTexture,
+});
+const plane = new THREE.Mesh( planeGeometry, planeMaterial )
+plane.rotation.x = -Math.PI/2
+scene.add( plane );
+
+
+
+
+
+
+
+//light
 const dirLight = new THREE.DirectionalLight()
 dirLight.position.set(0, 10, 0)
 dirLight.target.position.set(0, 0, 0)
@@ -67,8 +105,13 @@ const ambientLight = new THREE.AmbientLight(0xFFFFFF)
 scene.add(ambientLight)
 
 
-const assetLoader = new GLTFLoader();
 
+
+
+
+
+
+//player class
 class Player{
   constructor(id, mod, mix, CControls){
     this.id = id
@@ -81,6 +124,13 @@ class Player{
 }
 
 
+
+
+
+
+
+//loading player model
+const assetLoader = new GLTFLoader();
 
 let model, mixer, actions = {};
 let walking = false
@@ -116,11 +166,17 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
 
 
 
+
+
+
 let playersData = {}
 const playerModels = {}
 const playerMixers = {}
 const playerActions = {}
 const playerCurrentActions = {}
+
+
+
 
 
 const clock = new THREE.Clock();
@@ -245,6 +301,10 @@ renderer.setAnimationLoop(animate);
 
 
 
+
+
+
+//keyboard events
 const keys = {}
 
 document.addEventListener("keydown", e =>{
@@ -275,8 +335,3 @@ document.addEventListener('mousemove', e =>{
 
 
 
-window.addEventListener('resize', function() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
