@@ -5,7 +5,7 @@ import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
 
-console.log("heh")
+console.log("haha")
 
 const W = 'KeyW'
 const S = 'KeyS'
