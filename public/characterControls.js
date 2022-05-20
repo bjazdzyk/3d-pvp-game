@@ -27,7 +27,7 @@ export class CharacterControls{
 		this.animationsMap[this.currentAction].play()
 
 		// temporary data
-		this.walkDirection = new THREE.Vector3()
+		this.walkDirection = new THREE.Vector3(0 , 0, -1)
 		this.rotateAngle = new THREE.Vector3(0, 1, 0)
 		this.rotateQuarternion = new THREE.Quaternion()
 		this.cameraTarget = new THREE.Vector3()
@@ -35,6 +35,8 @@ export class CharacterControls{
 		this.punched = false
 		this.directionOffset = 0
 		this.lockAction = 0
+
+		this.punchTimeStamp = Date.now()
 
 
 		// const
@@ -71,18 +73,9 @@ export class CharacterControls{
 	}
 
 	update(socket, delta, keys, action){
-
 		let play = action
-		if(Math.abs(this.animationsMap[play].time-0.8)<0.1){
-			if(play == "Punch" && !this.punched){
-				socket.emit('punch', "lol")
-				console.log(this.animationsMap[play].time)
-				this.punched = 1
-			}
-		}else if(play == "Punch"){
-			this.punched = 0
-		}
 		
+		//socket.emit('punch', "lol")
 		
 
 		if(this.currentAction != play){

@@ -161,6 +161,7 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
 
   characterControls = new CharacterControls(playerModel, mixer, actions, orbit, camera,  'Idle')
   Bob = new Player(socket.id, playerModel, mixer, characterControls)
+  Bob.characterControls.sendData(socket, keys)
 
 }, undefined, function(error) {
     console.error(error);
@@ -209,6 +210,7 @@ socket.on('arenaSize', (size)=>{
   })
 
 })
+
 
 
 

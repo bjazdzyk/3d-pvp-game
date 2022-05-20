@@ -27,20 +27,10 @@ const arenaCollisionOffset = 1
 const punchOffset = 2
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.1 , hp:100}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , hp:100, punchTimeStamp:0, lockAction:false}
 
   socket.emit('arenaSize', arenaSize)
 
-  socket.on('punch', (Data)=>{
-    const playerData = playersData[socket.id]
-    //console.log(playerData.position.x+playerData.walkDirection.x, playerData.position.z+playerData.walkDirection.z)
-    const x = playerData.walkDirection.x
-    const z = playerData.walkDirection.z
-
-    const newX = punchOffset/Math.sqrt(x*x + z*z)*x
-    const newZ = punchOffset/Math.sqrt(x*x + z*z)*z
-    io.emit('pointDamage', {x:playerData.position.x+newX, z:playerData.position.z+newZ})
-  })
 
   socket.on('requestUpdate', (Data)=>{
 
@@ -49,25 +39,9 @@ io.on('connection', (socket) => {
     playersData[socket.id].keys = keys
 
     const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
-    const mouseLeftPressed = (!!keys[MOUSEL])
-    const mouseRightPressed = (!!keys[MOUSER])
+    const mouseLeftPressed = (!!playersData[socket.id].keys[MOUSEL])
+    const mouseRightPressed = (!!playersData[socket.id].keys[MOUSER])
 
-    let play = ''
-    if(mouseRightPressed){
-      play = 'ShieldIdle'
-    }else{
-      if(mouseLeftPressed){
-        play = 'Punch'
-      }else{
-        if(dirPressed){
-          play = 'Run'
-        }else{
-          play = 'Idle'
-        }
-      }
-    }
-
-    playersData[socket.id].currentAction = play
 
     if(dirPressed){
       const dirX = Data[1]
@@ -99,8 +73,63 @@ io.on('connection', (socket) => {
 
 
 const loop = setInterval(()=>{
+
   for(let i in playersData){
     if(playersData[i] != "disconnected"){
+
+      if(Date.now() - playersData[i].punchTimeStamp <= 600){
+
+        playersData[i].currentAction = 'Punch'
+
+        if(!playersData[i].lockAction){
+          io.emit("Data", [playersData])
+        }
+        playersData[i].lockAction = true
+        if(Math.floor((Date.now() - playersData[i].punchTimeStamp)/20) == 15){
+          const playerData = playersData[i]
+          const x = playerData.walkDirection.x
+          const z = playerData.walkDirection.z
+
+          const newX = punchOffset/Math.sqrt(x*x + z*z)*x
+          const newZ = punchOffset/Math.sqrt(x*x + z*z)*z
+          io.emit('pointDamage', {x:playerData.position.x+newX, z:playerData.position.z+newZ})
+        }
+      }else{
+
+        const keys = playersData[i].keys
+
+        const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
+        const mouseLeftPressed = (!!playersData[i].keys[MOUSEL])
+        const mouseRightPressed = (!!playersData[i].keys[MOUSER])
+
+        let play = ''
+
+        if(mouseRightPressed){
+          play = 'ShieldIdle'
+        }else{
+          if(mouseLeftPressed){
+            play = 'Punch'
+          }else{
+            if(dirPressed){
+              play = 'Run'
+            }else{
+              play = 'Idle'
+            }
+          }
+        }
+
+        if(!playersData[i].lockAction && play == 'Punch'){
+          playersData[i].punchTimeStamp = Date.now()
+        }
+
+        playersData[i].currentAction = play
+        if(playersData[i].lockAction){
+          io.emit("Data", [playersData])
+        }
+        playersData[i].lockAction = false
+      }
+
+
       if(playersData[i].currentAction == "Run"){
 
         if(playersData[i].walkDirection.x){
