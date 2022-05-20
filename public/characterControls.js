@@ -70,20 +70,18 @@ export class CharacterControls{
 	    this.updateCameraTarget(deltaX, deltaZ)
 	}
 
-	update(delta, keys, action){
+	update(socket, delta, keys, action){
 
 		let play = action
-
-		if(play == "Punch" && Math.abs(this.animationsMap[play].time-0.7)<0.1 && !this.punched){
-			console.log(this.animationsMap[play].time)
-			this.punched = 1
+		if(Math.abs(this.animationsMap[play].time-0.8)<0.1){
+			if(play == "Punch" && !this.punched){
+				socket.emit('punch', "lol")
+				console.log(this.animationsMap[play].time)
+				this.punched = 1
+			}
+		}else if(play == "Punch"){
+			this.punched = 0
 		}
-		// if(play == "Punch" && this.animationsMap[play]._loopCount>0){
-		// 	play = "Idle"
-		// }
-		// if(play !="Punch"){
-		// 	this.punched = 0
-		// }
 		
 		
 

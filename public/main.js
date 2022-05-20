@@ -237,14 +237,14 @@ function animate() {
   for(let i in playersData){
     if(playerMixers[i]){
       if(i != socket.id && characterControls){
-        playerMixers[i].update(delta * characterControls.animationFactors[playerCurrentActions[i] ])
+        playerMixers[i].update(delta * characterControls.animationFactors[playerCurrentActions[i]])
       }
     }
   }
 
   if(characterControls){
 
-    Bob.characterControls.update(delta, keys, Bob.currentAction)
+    Bob.characterControls.update(socket, delta, keys, Bob.currentAction)
 
     const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER])
     if(needsUpdate){
@@ -256,7 +256,13 @@ function animate() {
 }
 
 
-
+socket.on('pointDamage', (Data)=>{
+  const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  const cube = new THREE.Mesh( geometry, material );
+  cube.position.set(Data.x, 0, Data.z)
+  scene.add( cube );
+})
 
 
 

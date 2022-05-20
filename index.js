@@ -30,6 +30,12 @@ io.on('connection', (socket) => {
 
   socket.emit('arenaSize', arenaSize)
 
+  socket.on('punch', (Data)=>{
+    const playerData = playersData[socket.id]
+    //console.log(playerData.position.x+playerData.walkDirection.x, playerData.position.z+playerData.walkDirection.z)
+    io.emit('pointDamage', {x:playerData.position.x+playerData.walkDirection.x*20, z:playerData.position.z+playerData.walkDirection.z*20})
+  })
+
   socket.on('requestUpdate', (Data)=>{
 
     const keys = Data[0]
@@ -105,7 +111,7 @@ const loop = setInterval(()=>{
       }
     }
   }
-}, 10)
+}, 20)
 
 
 
