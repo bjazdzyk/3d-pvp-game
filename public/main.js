@@ -5,7 +5,6 @@ import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
 
-console.log("hahaha")
 
 const W = 'KeyW'
 const S = 'KeyS'
@@ -172,40 +171,46 @@ assetLoader.load('/assets/Wojownik.glb', function(gltf) {
 
 
 //loading fence model & cloning
-const arenaSize = 75
+let arenaSize
 const fenceOffset = 7.5
 let fenceModel
 
+socket.on('arenaSize', (size)=>{
+  arenaSize = size
 
-assetLoader.load('/assets/fence.glb', function(gltf) {
-  fenceModel = gltf.scene
-  //scene.add(fenceModel)
-
-
-  for(let i=-arenaSize/2+fenceOffset; i<arenaSize/2+fenceOffset; i+=fenceOffset){
-    const fenceCloneN = SkeletonUtils.clone(fenceModel)
-    fenceCloneN.position.set(-arenaSize/2, 0, i)
-
-    const fenceCloneE = SkeletonUtils.clone(fenceModel)
-    fenceCloneE.position.set(i, 0, arenaSize/2)
-    fenceCloneE.rotation.y = Math.PI/2
-
-    const fenceCloneS = SkeletonUtils.clone(fenceModel)
-    fenceCloneS.position.set(arenaSize/2, 0, i)
-
-    const fenceCloneW = SkeletonUtils.clone(fenceModel)
-    fenceCloneW.position.set(i, 0, -arenaSize/2)
-    fenceCloneW.rotation.y = Math.PI/2
-    scene.add(fenceCloneN, fenceCloneE, fenceCloneS, fenceCloneW)
-  }
-
-
-  gltf.scene.traverse(c =>{
-    c.castShadow = true
+  assetLoader.load('/assets/fence.glb', function(gltf) {
+    fenceModel = gltf.scene
+    //scene.add(fenceModel)
+  
+  
+    for(let i=-arenaSize/2+fenceOffset; i<arenaSize/2+fenceOffset; i+=fenceOffset){
+      const fenceCloneN = SkeletonUtils.clone(fenceModel)
+      fenceCloneN.position.set(-arenaSize/2, 0, i)
+  
+      const fenceCloneE = SkeletonUtils.clone(fenceModel)
+      fenceCloneE.position.set(i, 0, arenaSize/2)
+      fenceCloneE.rotation.y = Math.PI/2
+  
+      const fenceCloneS = SkeletonUtils.clone(fenceModel)
+      fenceCloneS.position.set(arenaSize/2, 0, i)
+  
+      const fenceCloneW = SkeletonUtils.clone(fenceModel)
+      fenceCloneW.position.set(i, 0, -arenaSize/2)
+      fenceCloneW.rotation.y = Math.PI/2
+      scene.add(fenceCloneN, fenceCloneE, fenceCloneS, fenceCloneW)
+    }
+  
+  
+    gltf.scene.traverse(c =>{
+      c.castShadow = true
+    })
+  }, undefined, function(error) {
+      console.error(error);
   })
-}, undefined, function(error) {
-    console.error(error);
+
 })
+
+
 
 
 

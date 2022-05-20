@@ -22,9 +22,13 @@ app.use(express.static('public'));
 
 const playersData = {}
 
+const arenaSize = 45
+const arenaCollisionOffset = 1
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.1, hp:100}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:0}, runVelocity:0.1 , hp:100}
+
+  socket.emit('arenaSize', arenaSize)
 
   socket.on('requestUpdate', (Data)=>{
 
@@ -88,10 +92,14 @@ const loop = setInterval(()=>{
       if(playersData[i].currentAction == "Run"){
 
         if(playersData[i].walkDirection.x){
-          playersData[i].position.x += playersData[i].walkDirection.x
+          if(Math.abs(playersData[i].position.x + playersData[i].walkDirection.x) < arenaSize/2-arenaCollisionOffset){
+            playersData[i].position.x += playersData[i].walkDirection.x
+          }
 
         }if(playersData[i].walkDirection.z){
-          playersData[i].position.z += playersData[i].walkDirection.z
+          if(Math.abs(playersData[i].position.z + playersData[i].walkDirection.z) < arenaSize/2-arenaCollisionOffset){
+            playersData[i].position.z += playersData[i].walkDirection.z
+          }
 
         }
       }
