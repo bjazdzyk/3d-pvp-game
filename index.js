@@ -72,13 +72,20 @@ io.on('connection', (socket) => {
 });
 
 
+
+
+
+
+
+
+
 const loop = setInterval(()=>{
 
   for(let i in playersData){
     if(playersData[i] != "disconnected"){
 
       if(Date.now() - playersData[i].punchTimeStamp <= 600){
-        console.log("lock")
+        //console.log("lock")
 
         playersData[i].currentAction = 'Punch'
 
@@ -86,14 +93,28 @@ const loop = setInterval(()=>{
           io.emit("Data", [playersData])
         }
         playersData[i].lockAction = true
-        if(Math.floor((Date.now() - playersData[i].punchTimeStamp)/20) == 15){
+        if(Math.floor((Date.now() - playersData[i].punchTimeStamp)/20) == 17){
           const playerData = playersData[i]
           const x = playerData.walkDirection.x
           const z = playerData.walkDirection.z
 
           const newX = punchOffset/Math.sqrt(x*x + z*z)*x
           const newZ = punchOffset/Math.sqrt(x*x + z*z)*z
-          io.emit('pointDamage', {x:playerData.position.x+newX, z:playerData.position.z+newZ})
+
+
+          for(let j in playersData){
+            if(i!=j && playersData[j].position){
+              const dX  = Math.abs(playersData[j].position.x - (playerData.position.x+newX))
+              const dY  = Math.abs(playersData[j].position.y - 0)
+              const dZ  = Math.abs(playersData[j].position.z - (playerData.position.z+newZ))
+
+              const d = Math.sqrt(dY*dY + Math.sqrt(dX*dX + dZ*dZ))
+              //console.log(d)
+              if(d < 1.2){
+                 io.sockets.sockets.get(j).emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ})
+              }
+            }
+          }
         }
       }else{
         
@@ -119,7 +140,6 @@ const loop = setInterval(()=>{
             }
           }
         }
-        //console.log(play)
         if(!playersData[i].lockAction && play == 'Punch'){
           playersData[i].punchTimeStamp = Date.now()
         }
@@ -127,7 +147,6 @@ const loop = setInterval(()=>{
         if(playersData[i].currentAction != play){
           playersData[i].currentAction = play
           io.emit("Data", [playersData])
-          console.log("lll")
         }
         playersData[i].currentAction = play
         playersData[i].lockAction = false

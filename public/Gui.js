@@ -1,6 +1,3 @@
-console.log("GuiGui")
-
-
 const playerIcon = document.createElement("div")
 const playerIconUrl = "assets/icon.png"
 playerIcon.setAttribute("id", "playerIcon")

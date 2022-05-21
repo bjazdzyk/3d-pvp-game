@@ -258,11 +258,18 @@ function animate() {
 }
 
 
+
+const pointDamage = (x, y, z, radius)=>{
+
+}
+
+
+
 socket.on('pointDamage', (Data)=>{
   const geometry = new THREE.BoxGeometry( 1, 1, 1 );
   const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
   const cube = new THREE.Mesh( geometry, material );
-  cube.position.set(Data.x, 0, Data.z)
+  cube.position.set(Data.x, Data.y, Data.z)
   scene.add( cube );
 })
 
