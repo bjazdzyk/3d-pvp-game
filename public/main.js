@@ -4,6 +4,7 @@ import {GLTFLoader} from '/assets/js/GLTFLoader.js'
 import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
+import { HealthManager } from '/Gui.js';
 
 
 const W = 'KeyW'
@@ -177,6 +178,7 @@ const fenceOffset = 7.5
 let fenceModel
 
 socket.on('arenaSize', (size)=>{
+
   arenaSize = size
 
   assetLoader.load('/assets/fence.glb', function(gltf) {
@@ -212,12 +214,7 @@ socket.on('arenaSize', (size)=>{
 })
 
 
-
-
-
-
-
-
+const HPM = new HealthManager(200)
 
 
 let playersData = {}
@@ -260,17 +257,13 @@ function animate() {
 
 
 const pointDamage = (x, y, z, radius)=>{
-
+  //particles etc
 }
 
 
 
 socket.on('pointDamage', (Data)=>{
-  const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-  const cube = new THREE.Mesh( geometry, material );
-  cube.position.set(Data.x, Data.y, Data.z)
-  scene.add( cube );
+  pointDamage(Data.x, Data.y, Data.z, Data.ratius)
 })
 
 
@@ -280,6 +273,16 @@ socket.on("Data", (Data)=>{
 
   
   playersData = Data[0]
+
+
+  if(playersData[socket.id].maxHp != HPM.maxHealth){
+    HPM.setMaxHp(playersData[socket.id].maxHp)
+    console.log(playersData[socket.id].maxHp)
+  }
+  if(playersData[socket.id].hp != HPM.hp){
+    HPM.setHp(playersData[socket.id].hp, HPM.maxHealth)
+  }
+
 
   //animations
   if(Bob){

@@ -25,9 +25,10 @@ const playersData = {}
 const arenaSize = 45
 const arenaCollisionOffset = 1
 const punchOffset = 2
+const punchRadius = 1.3
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , hp:100, punchTimeStamp:0, lockAction:false}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, punchTimeStamp:0, lockAction:false, damage: 40}
 
   socket.emit('arenaSize', arenaSize)
 
@@ -110,8 +111,11 @@ const loop = setInterval(()=>{
 
               const d = Math.sqrt(dY*dY + Math.sqrt(dX*dX + dZ*dZ))
               //console.log(d)
-              if(d < 1.2){
-                 io.sockets.sockets.get(j).emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ})
+              if(d < punchRadius){
+                //io.sockets.sockets.get(j)
+                 io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
+                 playersData[j].hp -= playersData[i].damage
+                 io.emit("Data", [playersData])
               }
             }
           }
