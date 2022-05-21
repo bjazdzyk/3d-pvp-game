@@ -78,6 +78,7 @@ const loop = setInterval(()=>{
     if(playersData[i] != "disconnected"){
 
       if(Date.now() - playersData[i].punchTimeStamp <= 600){
+        console.log("lock")
 
         playersData[i].currentAction = 'Punch'
 
@@ -95,6 +96,7 @@ const loop = setInterval(()=>{
           io.emit('pointDamage', {x:playerData.position.x+newX, z:playerData.position.z+newZ})
         }
       }else{
+        
 
         const keys = playersData[i].keys
 
@@ -117,15 +119,17 @@ const loop = setInterval(()=>{
             }
           }
         }
-
+        //console.log(play)
         if(!playersData[i].lockAction && play == 'Punch'){
           playersData[i].punchTimeStamp = Date.now()
         }
 
-        playersData[i].currentAction = play
-        if(playersData[i].lockAction){
+        if(playersData[i].currentAction != play){
+          playersData[i].currentAction = play
           io.emit("Data", [playersData])
+          console.log("lll")
         }
+        playersData[i].currentAction = play
         playersData[i].lockAction = false
       }
 
