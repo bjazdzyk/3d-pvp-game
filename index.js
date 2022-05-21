@@ -13,6 +13,7 @@ const A = 'KeyA'
 const D = 'KeyD'
 const MOUSEL = 'Mouse1'
 const MOUSER = 'Mouse3'
+const SPACE = 'Space'
 
 
 app.set('port', (process.env.PORT || 8080));
@@ -29,7 +30,7 @@ const punchRadius = 1.3
 const shieldDamageAbsorption = 0.8
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, punchTimeStamp:0, lockAction:false, damage: 40, alive:true, shieldTimeStamp:0}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, punchTimeStamp:0, lockAction:false, damage: 40, alive:true, shieldTimeStamp:0, jumpTimeStamp:0}
 
   socket.emit('arenaSize', arenaSize)
 
@@ -41,6 +42,7 @@ io.on('connection', (socket) => {
       playersData[socket.id].keys = keys
 
       const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
+      const spacePressed = (keys[SPACE])
       const mouseLeftPressed = (!!playersData[socket.id].keys[MOUSEL])
       const mouseRightPressed = (!!playersData[socket.id].keys[MOUSER])
 
@@ -86,6 +88,7 @@ const loop = setInterval(()=>{
   for(let i in playersData){
     if(playersData[i] != "disconnected"){
       if(playersData[i].alive){
+        
         if(Date.now() - playersData[i].shieldTimeStamp <= 600){
           playersData[i].currentAction = 'ShieldProtect'
 
@@ -95,6 +98,13 @@ const loop = setInterval(()=>{
           playersData[i].lockAction = true
 
 
+        }else if(Date.now() - playersData[i].jumpTimeStamp <= 600){
+          playersData[i].currentAction = 'Jump'
+
+          if(!playersData[i].lockAction){
+            io.emit("Data", [playersData])
+          }
+          playersData[i].lockAction = true
         }else if(Date.now() - playersData[i].punchTimeStamp <= 600){
           //console.log("lock")
 
@@ -148,26 +158,33 @@ const loop = setInterval(()=>{
           const keys = playersData[i].keys
 
           const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
+          const spacePressed = (keys[SPACE])
           const mouseLeftPressed = (!!playersData[i].keys[MOUSEL])
           const mouseRightPressed = (!!playersData[i].keys[MOUSER])
 
           let play = ''
-
-          if(mouseRightPressed){
-            play = 'ShieldIdle'
+          if(spacePressed){
+            play = 'Jump'
           }else{
-            if(mouseLeftPressed){
-              play = 'Punch'
+            if(mouseRightPressed){
+              play = 'ShieldIdle'
             }else{
-              if(dirPressed){
-                play = 'Run'
+              if(mouseLeftPressed){
+                play = 'Punch'
               }else{
-                play = 'Idle'
+                if(dirPressed){
+                  play = 'Run'
+                }else{
+                  play = 'Idle'
+                }
               }
             }
           }
+          
           if(playersData[i].lockAction && playersData[i].currentAction == 'ShieldProtect'){
             play = 'ShieldProtect'
+          }else if(!playersData[i].lockAction && play == 'Jump'){
+            playersData[i].jumpTimeStamp = Date.now()
           }else if(!playersData[i].lockAction && play == 'Punch'){
             playersData[i].punchTimeStamp = Date.now()
           }
@@ -180,8 +197,10 @@ const loop = setInterval(()=>{
           playersData[i].lockAction = false
         }
 
+        const keys = playersData[i].keys
+        const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
 
-        if(playersData[i].currentAction == "Run"){
+        if(dirPressed && (playersData[i].currentAction == "Run" || playersData[i].currentAction == "Jump")){
 
           if(playersData[i].walkDirection.x){
             if(Math.abs(playersData[i].position.x + playersData[i].walkDirection.x) < arenaSize/2-arenaCollisionOffset){

@@ -46,7 +46,8 @@ export class CharacterControls{
 			'Punch': 0.1,
 			'ShieldIdle': 0.1,
 			'Death': 0.2,
-			'ShieldProtect': 0.02
+			'ShieldProtect': 0.02,
+			'Jump': 0.3
 		}
 		this.runVelocity = 10
 		this.animationFactors = {
@@ -55,7 +56,8 @@ export class CharacterControls{
 			'Punch': 2,
 			'ShieldIdle': 1,
 			'Death': 1,
-			'ShieldProtect': 1
+			'ShieldProtect': 1,
+			'Jump': 1.5
 		}
 
 
@@ -103,7 +105,10 @@ export class CharacterControls{
 		if(this.mixer){
 			this.mixer.update(delta * this.animationFactors[this.currentAction])
 		}
-		if(this.currentAction == 'Run'){
+
+        const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
+
+		if(dirPressed && (this.currentAction == 'Run' || this.currentAction == 'Jump')){
 			//calculate towards camera direction
 			let angleYCameraDirection = Math.atan2(
                     (this.camera.position.x - this.model.position.x), 
