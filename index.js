@@ -28,9 +28,11 @@ const arenaCollisionOffset = 1
 const punchOffset = 2
 const punchRadius = 1.3
 const shieldDamageAbsorption = 0.8
+const powerPunchDamageFactor = 1.5
+const powerPunchRadius = 3
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, lockAction:false, damage: 40, alive:true, punchTimeStamp:0, shieldTimeStamp:0, jumpTimeStamp:0, punchedTimeStamp:0, powerPunch: false}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, lockAction:false, damage: 40, alive:true, punchTimeStamp:0, shieldTimeStamp:0, jumpTimeStamp:0, punchedTimeStamp:0, powerPunchedTimeStamp:0, powerPunch: false}
 
   socket.emit('arenaSize', arenaSize)
 
@@ -81,15 +83,26 @@ io.on('connection', (socket) => {
 
 
 
-
-
 const loop = setInterval(()=>{
 
   for(let i in playersData){
     if(playersData[i] != "disconnected"){
       if(playersData[i].alive){
         
-        if(Date.now() - playersData[i].punchedTimeStamp <= 330){
+        if(Date.now() - playersData[i].powerPunchedTimeStamp <= 1600){
+          if(Date.now() - playersData[i].powerPunchedTimeStamp <=800){
+            playersData[i].currentAction = 'PowerPunched'
+          }else{
+            playersData[i].currentAction = 'StandUp'
+          }
+
+          if(!playersData[i].lockAction){
+            io.emit("Data", [playersData])
+          }
+          playersData[i].lockAction = true
+
+
+        }else if(Date.now() - playersData[i].punchedTimeStamp <= 330){
           playersData[i].currentAction = 'Punched'
 
           if(!playersData[i].lockAction){
@@ -108,10 +121,52 @@ const loop = setInterval(()=>{
 
 
         }else if((playersData[i].currentAction == 'Jump' && Date.now() - playersData[i].jumpTimeStamp <= 600) || (playersData[i].currentAction == 'PowerPunch' && Date.now() - playersData[i].jumpTimeStamp <= 750)){
+
+          if(Math.floor((Date.now() - playersData[i].jumpTimeStamp)/20)==26 && playersData[i].powerPunch){
+            //powerPunch
+            const playerData = playersData[i]
+            const x = playerData.walkDirection.x
+            const z = playerData.walkDirection.z
+
+            const newX = punchOffset/Math.sqrt(x*x + z*z)*x
+            const newZ = punchOffset/Math.sqrt(x*x + z*z)*z
+
+
+            for(let j in playersData){
+              if(i!=j && playersData[j].position){
+                const dX  = Math.abs(playersData[j].position.x - (playerData.position.x+newX))
+                const dY  = Math.abs(playersData[j].position.y - 0)
+                const dZ  = Math.abs(playersData[j].position.z - (playerData.position.z+newZ))
+
+                const d = Math.sqrt(dY*dY + Math.sqrt(dX*dX + dZ*dZ))
+                //console.log(d)
+                if(d < powerPunchRadius){
+                  //io.sockets.sockets.get(j)
+                  //j-ofiara i-atacker
+
+                  io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
+
+                  if(playersData[j].currentAction == 'ShieldIdle'){
+                    playersData[j].hp -= playerData.damage*powerPunchDamageFactor*(1 - shieldDamageAbsorption)
+                    playersData[j].shieldTimeStamp = Date.now()
+                  }else{
+                    playersData[j].hp -= playersData[i].damage*powerPunchDamageFactor
+                    playersData[j].powerPunchedTimeStamp = Date.now()
+                    
+                  }
+                  if(playersData[j].hp<=0){
+                    playersData[j].alive = false
+                    playersData[j].currentAction = "Death"
+                  }
+                  io.emit("Data", [playersData])
+                }
+              }
+            }
+            
+          }
           if(Date.now() - playersData[i].jumpTimeStamp >= 300 && Date.now() - playersData[i].jumpTimeStamp <= 400){
             if(playersData[i].keys[MOUSEL]){
               playersData[i].powerPunch = true
-              console.log("Power")
             }
           }
           if(playersData[i].powerPunch){
@@ -124,6 +179,7 @@ const loop = setInterval(()=>{
             io.emit("Data", [playersData])
           }
           playersData[i].lockAction = true
+
         }else if(Date.now() - playersData[i].punchTimeStamp <= 600){
           //console.log("lock")
 
@@ -203,7 +259,9 @@ const loop = setInterval(()=>{
             }
           }
           
-          if(playersData[i].lockAction && playersData[i].currentAction == 'Punched'){
+          if(playersData[i].lockAction && (playersData[i].currentAction == 'PowerPunched' || playersData[i].currentAction == 'StandUp')){
+            play = playersData[i].currentAction
+          }else if(playersData[i].lockAction && playersData[i].currentAction == 'Punched'){
             play = 'Punched'
           }else if(playersData[i].lockAction && playersData[i].currentAction == 'ShieldProtect'){
             play = 'ShieldProtect'
