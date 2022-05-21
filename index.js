@@ -89,7 +89,7 @@ const loop = setInterval(()=>{
     if(playersData[i] != "disconnected"){
       if(playersData[i].alive){
         
-        if(Date.now() - playersData[i].punchedTimeStamp <= 600){
+        if(Date.now() - playersData[i].punchedTimeStamp <= 300){
           playersData[i].currentAction = 'Punched'
 
           if(!playersData[i].lockAction){
@@ -98,7 +98,7 @@ const loop = setInterval(()=>{
           playersData[i].lockAction = true
 
 
-        }else if(Date.now() - playersData[i].shieldTimeStamp <= 600){
+        }else if(Date.now() - playersData[i].shieldTimeStamp <= 200){
           playersData[i].currentAction = 'ShieldProtect'
 
           if(!playersData[i].lockAction){
@@ -178,7 +178,7 @@ const loop = setInterval(()=>{
             play = 'Jump'
           }else{
             if(mouseRightPressed){
-              play = 'ShieldIdle'
+              play = 'Idle'
             }else{
               if(mouseLeftPressed){
                 play = 'Punch'
@@ -186,7 +186,7 @@ const loop = setInterval(()=>{
                 if(dirPressed){
                   play = 'Run'
                 }else{
-                  play = 'Idle'
+                  play = 'ShieldIdle'
                 }
               }
             }

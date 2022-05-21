@@ -278,7 +278,7 @@ socket.on("Data", (Data)=>{
 
   if(playersData[socket.id].maxHp != HPM.maxHealth){
     HPM.setMaxHp(playersData[socket.id].maxHp)
-    console.log(playersData[socket.id].maxHp)
+
   }
   if(playersData[socket.id].hp != HPM.hp){
     HPM.setHp(playersData[socket.id].hp, HPM.maxHealth)
@@ -358,6 +358,13 @@ socket.on("Data", (Data)=>{
             playerMixers[i] = cloneMixer
             playerActions[i] = cloneActions
 
+            if(playerCurrentActions[i] == 'Death'){
+              playerActions[i][playerCurrentActions[i]].setLoop(THREE.LoopOnce)
+              playerActions[i][playerCurrentActions[i]].clampWhenFinished = true
+
+              playerActions[i][playerCurrentActions[i]].time = playerActions[i][playerCurrentActions[i]]._clip.duration
+            }
+
             playerActions[i][playerCurrentActions[i]].play()
 
 
@@ -383,7 +390,6 @@ const keys = {}
 
 document.addEventListener("keydown", e =>{
 	keys[e.code] = true
-  console.log(keys)
 })
 document.addEventListener("keyup", e =>{
 	keys[e.code] = null
