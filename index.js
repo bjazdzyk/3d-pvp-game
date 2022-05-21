@@ -26,9 +26,10 @@ const arenaSize = 45
 const arenaCollisionOffset = 1
 const punchOffset = 2
 const punchRadius = 1.3
+const shieldDamageAbsorption = 0.8
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, punchTimeStamp:0, lockAction:false, damage: 40, alive:true}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, punchTimeStamp:0, lockAction:false, damage: 40, alive:true, shieldTimeStamp:0}
 
   socket.emit('arenaSize', arenaSize)
 
@@ -85,8 +86,16 @@ const loop = setInterval(()=>{
   for(let i in playersData){
     if(playersData[i] != "disconnected"){
       if(playersData[i].alive){
+        if(Date.now() - playersData[i].shieldTimeStamp <= 600){
+          playersData[i].currentAction = 'ShieldProtect'
 
-        if(Date.now() - playersData[i].punchTimeStamp <= 600){
+          if(!playersData[i].lockAction){
+            io.emit("Data", [playersData])
+          }
+          playersData[i].lockAction = true
+
+
+        }else if(Date.now() - playersData[i].punchTimeStamp <= 600){
           //console.log("lock")
 
           playersData[i].currentAction = 'Punch'
@@ -114,8 +123,16 @@ const loop = setInterval(()=>{
                 //console.log(d)
                 if(d < punchRadius){
                   //io.sockets.sockets.get(j)
-                  io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
-                  playersData[j].hp -= playersData[i].damage
+                  //j-ofiara i-atacker
+                  if(playersData[j].currentAction == 'ShieldIdle'){
+                    io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
+                    playersData[j].hp -= playersData[i].damage*(1 - shieldDamageAbsorption)
+                    playersData[j].shieldTimeStamp = Date.now()
+                  }else{
+                    io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
+                    playersData[j].hp -= playersData[i].damage
+                    
+                  }
                   if(playersData[j].hp<=0){
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
@@ -149,7 +166,9 @@ const loop = setInterval(()=>{
               }
             }
           }
-          if(!playersData[i].lockAction && play == 'Punch'){
+          if(playersData[i].lockAction && playersData[i].currentAction == 'ShieldProtect'){
+            play = 'ShieldProtect'
+          }else if(!playersData[i].lockAction && play == 'Punch'){
             playersData[i].punchTimeStamp = Date.now()
           }
 
