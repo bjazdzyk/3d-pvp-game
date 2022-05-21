@@ -44,14 +44,16 @@ export class CharacterControls{
 			'Run': 0.3,
 			'Idle': 0.2,
 			'Punch': 0.1,
-			'ShieldIdle': 0.1
+			'ShieldIdle': 0.1,
+			'Death': 0.2
 		}
 		this.runVelocity = 10
 		this.animationFactors = {
 			'Run': 1.5,
 			'Idle': 1,
 			'Punch': 2,
-			'ShieldIdle': 1
+			'ShieldIdle': 1,
+			'Death': 1
 		}
 
 
@@ -82,7 +84,11 @@ export class CharacterControls{
 			const toPlay = this.animationsMap[play]
 			const current = this.animationsMap[this.currentAction]
 
-
+			if(play == "Death"){
+	            toPlay.setLoop(THREE.LoopOnce)
+	            toPlay.clampWhenFinished = true
+	            toPlay.enable = true
+	          }
 			current.fadeOut(this.fadeDurations[play])
 			toPlay.reset().fadeIn(this.fadeDurations[play]).play()
 

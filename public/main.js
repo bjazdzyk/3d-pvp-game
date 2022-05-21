@@ -321,6 +321,12 @@ socket.on("Data", (Data)=>{
           const current = playerActions[i][playerCurrentActions[i]]
 
           //console.log(playersData[i].currentAction, playerCurrentActions[i])
+          
+          if(playersData[i].currentAction == "Death"){
+            toPlay.setLoop(THREE.LoopOnce)
+            toPlay.clampWhenFinished = true
+            toPlay.enable = true
+          }
           current.fadeOut(characterControls.fadeDurations[playersData[i].currentAction])
           toPlay.reset().fadeIn(characterControls.fadeDurations[playersData[i].currentAction]).play()
 
