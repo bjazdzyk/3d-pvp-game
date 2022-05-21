@@ -30,7 +30,7 @@ const punchRadius = 1.3
 const shieldDamageAbsorption = 0.8
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, lockAction:false, damage: 40, alive:true, punchTimeStamp:0, shieldTimeStamp:0, jumpTimeStamp:0, punchedTimeStamp:0}
+  playersData[socket.id] = {keys:{}, currentAction:"Idle", position:{x:0, y:0, z:0}, walkDirection:{x:0, y:0, z:-1}, runVelocity:0.15 , maxHp:200, hp:200, lockAction:false, damage: 40, alive:true, punchTimeStamp:0, shieldTimeStamp:0, jumpTimeStamp:0, punchedTimeStamp:0, powerPunch: false}
 
   socket.emit('arenaSize', arenaSize)
 
@@ -107,8 +107,18 @@ const loop = setInterval(()=>{
           playersData[i].lockAction = true
 
 
-        }else if(Date.now() - playersData[i].jumpTimeStamp <= 600){
-          playersData[i].currentAction = 'Jump'
+        }else if((playersData[i].currentAction == 'Jump' && Date.now() - playersData[i].jumpTimeStamp <= 600) || (playersData[i].currentAction == 'PowerPunch' && Date.now() - playersData[i].jumpTimeStamp <= 750)){
+          if(Date.now() - playersData[i].jumpTimeStamp >= 300 && Date.now() - playersData[i].jumpTimeStamp <= 400){
+            if(playersData[i].keys[MOUSEL]){
+              playersData[i].powerPunch = true
+              console.log("Power")
+            }
+          }
+          if(playersData[i].powerPunch){
+            playersData[i].currentAction = 'PowerPunch'
+          }else{
+            playersData[i].currentAction = 'Jump'
+          }
 
           if(!playersData[i].lockAction){
             io.emit("Data", [playersData])
@@ -165,6 +175,7 @@ const loop = setInterval(()=>{
           }
         }else{
           
+          playersData[i].powerPunch = false
 
           const keys = playersData[i].keys
 

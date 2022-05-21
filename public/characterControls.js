@@ -48,7 +48,8 @@ export class CharacterControls{
 			'Death': 0.2,
 			'ShieldProtect': 0.02,
 			'Jump': 0.3,
-			'Punched': 0.02
+			'Punched': 0.02,
+			'PowerPunch':0.1
 		}
 		this.runVelocity = 10
 		this.animationFactors = {
@@ -59,7 +60,8 @@ export class CharacterControls{
 			'Death': 1,
 			'ShieldProtect': 1,
 			'Jump': 1.5,
-			'Punched': 1
+			'Punched': 1,
+			'PowerPunch': 1
 		}
 
 
