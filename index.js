@@ -14,6 +14,7 @@ const D = 'KeyD'
 const MOUSEL = 'Mouse1'
 const MOUSER = 'Mouse3'
 const SPACE = 'Space'
+const SHIFTL = 'ShiftLeft'
 
 
 app.set('port', (process.env.PORT || 8080));
@@ -37,7 +38,7 @@ io.on('connection', (socket) => {
     currentAction:"Idle",
     position:{x:0, y:0, z:0}, 
     walkDirection:{x:0, y:0, z:-1}, 
-    runVelocity:0.15 , 
+    velocity:{'Run':0.15, 'Jump':0.15, 'Dodge':0.15}, 
     maxHp:200, 
     hp:200, 
     lockAction:false, 
@@ -49,6 +50,7 @@ io.on('connection', (socket) => {
     punchedTimeStamp:0, 
     powerPunchedTimeStamp:0, 
     powerPunchTimeStamp:0, 
+    dodgeTimeStamp:0,
     powerPunch: false, 
     powerPunchDelay:9000
   }
@@ -74,8 +76,8 @@ io.on('connection', (socket) => {
 
         const vectorLength = Math.sqrt(dirX*dirX + dirZ*dirZ)
 
-        const newDirX = dirX / vectorLength * playersData[socket.id].runVelocity
-        const newDirZ = dirZ / vectorLength * playersData[socket.id].runVelocity
+        const newDirX = dirX / vectorLength
+        const newDirZ = dirZ / vectorLength
 
         playersData[socket.id].walkDirection = {x:newDirX, y:0, z:newDirZ}
       }
@@ -129,6 +131,14 @@ const loop = setInterval(()=>{
           }
           playersData[i].lockAction = true
 
+
+        }else if(Date.now() - playersData[i].dodgeTimeStamp <= 1000){
+          playersData[i].currentAction = 'Dodge'
+
+          if(!playersData[i].lockAction){
+            io.emit("Data", [playersData])
+          }
+          playersData[i].lockAction = true
 
         }else if(Date.now() - playersData[i].shieldTimeStamp <= 250){
           playersData[i].currentAction = 'ShieldProtect'
@@ -257,6 +267,7 @@ const loop = setInterval(()=>{
 
           const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
           const spacePressed = (keys[SPACE])
+          const shiftPressed = (keys[SHIFTL])
           const mouseLeftPressed = (!!playersData[i].keys[MOUSEL])
           const mouseRightPressed = (!!playersData[i].keys[MOUSER])
 
@@ -269,6 +280,8 @@ const loop = setInterval(()=>{
             }else{
               if(mouseLeftPressed){
                 play = 'Punch'
+              }else if(shiftPressed){
+                play = 'Dodge'
               }else{
                 if(dirPressed){
                   play = 'Run'
@@ -287,6 +300,8 @@ const loop = setInterval(()=>{
             play = 'ShieldProtect'
           }else if(!playersData[i].lockAction && play == 'Jump'){
             playersData[i].jumpTimeStamp = Date.now()
+          }else if(!playersData[i].lockAction && play == 'Dodge'){
+            playersData[i].dodgeTimeStamp = Date.now()
           }else if(!playersData[i].lockAction && play == 'Punch'){
             playersData[i].punchTimeStamp = Date.now()
           }
@@ -302,16 +317,18 @@ const loop = setInterval(()=>{
         const keys = playersData[i].keys
         const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
 
-        if(dirPressed && (playersData[i].currentAction == "Run" || playersData[i].currentAction == "Jump")){
+        const curAct = playersData[i].currentAction
+
+        if(dirPressed && (curAct == "Run" || curAct == "Jump")|| curAct == "Dodge"){
 
           if(playersData[i].walkDirection.x){
-            if(Math.abs(playersData[i].position.x + playersData[i].walkDirection.x) < arenaSize/2-arenaCollisionOffset){
-              playersData[i].position.x += playersData[i].walkDirection.x
+            if(Math.abs(playersData[i].position.x + playersData[i].walkDirection.x*playersData[i].velocity[curAct]) < arenaSize/2-arenaCollisionOffset){
+              playersData[i].position.x += playersData[i].walkDirection.x*playersData[i].velocity[curAct]
             }
 
           }if(playersData[i].walkDirection.z){
-            if(Math.abs(playersData[i].position.z + playersData[i].walkDirection.z) < arenaSize/2-arenaCollisionOffset){
-              playersData[i].position.z += playersData[i].walkDirection.z
+            if(Math.abs(playersData[i].position.z + playersData[i].walkDirection.z*playersData[i].velocity[curAct]) < arenaSize/2-arenaCollisionOffset){
+              playersData[i].position.z += playersData[i].walkDirection.z*playersData[i].velocity[curAct]
             }
 
           }

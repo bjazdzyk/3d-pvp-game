@@ -51,7 +51,8 @@ export class CharacterControls{
 			'Punched': 0.02,
 			'PowerPunch': 0.1,
 			'PowerPunched': 0.2,
-			'StandUp': 0.2
+			'StandUp': 0.2,
+			'Dodge':0.01
 		}
 		this.runVelocity = 10
 		this.animationFactors = {
@@ -65,7 +66,8 @@ export class CharacterControls{
 			'Punched': 1,
 			'PowerPunch': 1,
 			'PowerPunched': 1,
-			'StandUp':1
+			'StandUp':1,
+			'Dodge': 1.5
 		}
 
 
@@ -116,27 +118,26 @@ export class CharacterControls{
 
         const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
 
+        //calculate towards camera direction
+		let angleYCameraDirection = Math.atan2(
+            (this.camera.position.x - this.model.position.x), 
+            (this.camera.position.z - this.model.position.z))
+        if(typeof(this.countDirectionOffset(keys)) == 'number'){
+			this.directionOffset = this.countDirectionOffset(keys)
+		}
+
+
 		if(dirPressed && (this.currentAction == 'Run' || this.currentAction == 'Jump')){
-			//calculate towards camera direction
-			let angleYCameraDirection = Math.atan2(
-                    (this.camera.position.x - this.model.position.x), 
-                    (this.camera.position.z - this.model.position.z))
-
-
-			if(typeof(this.countDirectionOffset(keys)) == 'number'){
-				this.directionOffset = this.countDirectionOffset(keys)
-			}
-
 			//rotate model
 			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
-            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
-            //console.log(this.model.rotation)
+	        this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
 
-            //calculate direction
-            this.camera.getWorldDirection(this.walkDirection)
-            this.walkDirection.y = 0
-            this.walkDirection.normalize()
-            this.walkDirection.applyAxisAngle(this.rotateAngle, this.directionOffset)
+	     	//calculate direction
+	        this.camera.getWorldDirection(this.walkDirection)
+	        this.walkDirection.y = 0
+	        this.walkDirection.normalize()
+	        this.walkDirection.applyAxisAngle(this.rotateAngle, this.directionOffset)   
+			
 		}
 	}
 

@@ -14,6 +14,7 @@ const D = 'KeyD'
 const MOUSEL = 'Mouse1'
 const MOUSER = 'Mouse3'
 const SPACE = 'Space'
+const SHIFT = 'ShiftLeft'
 
 
 let socket = io();
@@ -247,7 +248,7 @@ function animate() {
 
     Bob.characterControls.update(socket, delta, keys, Bob.currentAction)
 
-    const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER]|| keys[SPACE])
+    const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER]|| keys[SPACE] || keys[SHIFT] || Bob.currentAction == 'Dodge')
     if(needsUpdate){
       Bob.characterControls.sendData(socket, keys)
     }
@@ -396,6 +397,7 @@ renderer.setAnimationLoop(animate);
 const keys = {}
 
 document.addEventListener("keydown", e =>{
+  console.log(keys)
 	keys[e.code] = true
 })
 document.addEventListener("keyup", e =>{
