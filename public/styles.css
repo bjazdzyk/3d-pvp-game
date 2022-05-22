@@ -1,0 +1,45 @@
+body{
+	margin: 0px;
+	overflow: hidden;
+	position: fixed;
+}
+
+canvas{
+	position: fixed;
+	z-index: 1;
+}
+
+#playerIcon{
+	position: fixed;
+	width: 65px;
+	height: 65px;
+	background-size:  cover;
+	left: 10px;
+	top: 10px;
+	z-index: 4;
+}
+#playerHealthBar{
+	position: relative;
+	top: 5px;
+	left: 5px;
+	height: 22.5px;
+	background-color: green;
+	z-index: 3;
+}
+#playerHealthContainer{
+	position: fixed;
+	top: 42px;
+	left: 42px;
+	height: 32.5px;
+	background-color: #3d3d3d;
+	z-index: 2;
+	width: 160px;
+}
+
+
+#powerPunchDelay{
+	position: fixed;
+	z-index: 2;
+	right: 30px;
+	bottom: 10px;
+}

@@ -47,7 +47,7 @@ export class CharacterControls{
 			'ShieldIdle': 0.1,
 			'Death': 0.2,
 			'ShieldProtect': 0.02,
-			'Jump': 0.3,
+			'Jump': 0.1,
 			'Punched': 0.02,
 			'PowerPunch': 0.1,
 			'PowerPunched': 0.2,

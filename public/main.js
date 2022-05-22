@@ -4,7 +4,7 @@ import {GLTFLoader} from '/assets/js/GLTFLoader.js'
 import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
-import { HealthManager } from '/Gui.js';
+import { GuiManager } from '/Gui.js';
 
 
 const W = 'KeyW'
@@ -39,7 +39,8 @@ const orbit = new OrbitControls(camera, renderer.domElement);
 orbit.minDistance = 5
 orbit.maxDistance = 12
 orbit.enablePan = false
-orbit.maxPolarAngle = Math.PI / 2 - 0.05
+orbit.minPolarAngle = Math.PI / 4
+orbit.maxPolarAngle = Math.PI / 2
 orbit.enableZoom = false
 orbit.update();
 
@@ -215,7 +216,7 @@ socket.on('arenaSize', (size)=>{
 })
 
 
-const HPM = new HealthManager(200)
+const GM = new GuiManager(200)
 
 
 let playersData = {}
@@ -252,6 +253,7 @@ function animate() {
     }
 
   }
+  GM.update(Date.now())
 	renderer.render(scene, camera);
 }
 
@@ -267,6 +269,11 @@ socket.on('pointDamage', (Data)=>{
   pointDamage(Data.x, Data.y, Data.z, Data.ratius)
 })
 
+GM.setPPdelay(Date.now(), 1)
+socket.on('powerPunchDelay', (Data)=>{
+  const delay = Data.delay
+  GM.setPPdelay(Date.now(), delay)
+})
 
 
 
@@ -276,12 +283,12 @@ socket.on("Data", (Data)=>{
   playersData = Data[0]
 
 
-  if(playersData[socket.id].maxHp != HPM.maxHealth){
-    HPM.setMaxHp(playersData[socket.id].maxHp)
+  if(playersData[socket.id].maxHp != GM.maxHealth){
+    GM.setMaxHp(playersData[socket.id].maxHp)
 
   }
-  if(playersData[socket.id].hp != HPM.hp){
-    HPM.setHp(playersData[socket.id].hp, HPM.maxHealth)
+  if(playersData[socket.id].hp != GM.hp){
+    GM.setHp(playersData[socket.id].hp, GM.maxHealth)
   }
 
 
