@@ -67,7 +67,7 @@ export class CharacterControls{
 			'PowerPunch': 1,
 			'PowerPunched': 1,
 			'StandUp':1,
-			'Dodge': 1.5
+			'Dodge': 2
 		}
 
 
@@ -130,7 +130,7 @@ export class CharacterControls{
 		if(dirPressed && (this.currentAction == 'Run' || this.currentAction == 'Jump')){
 			//rotate model
 			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
-	        this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
+	        this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.4)
 
 	     	//calculate direction
 	        this.camera.getWorldDirection(this.walkDirection)
