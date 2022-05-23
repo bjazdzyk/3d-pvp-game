@@ -52,7 +52,8 @@ export class CharacterControls{
 			'PowerPunch': 0.1,
 			'PowerPunched': 0.2,
 			'StandUp': 0.2,
-			'Dodge':0.01
+			'Dodge':0.01,
+			'DodgePunch':0.01
 		}
 		this.runVelocity = 10
 		this.animationFactors = {
@@ -67,7 +68,8 @@ export class CharacterControls{
 			'PowerPunch': 1,
 			'PowerPunched': 1,
 			'StandUp':1,
-			'Dodge': 2
+			'Dodge': 2,
+			'DodgePunch': 2
 		}
 
 

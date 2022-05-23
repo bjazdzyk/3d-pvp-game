@@ -248,7 +248,7 @@ function animate() {
 
     Bob.characterControls.update(socket, delta, keys, Bob.currentAction)
 
-    const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER]|| keys[SPACE] || keys[SHIFT] || Bob.currentAction == 'Dodge')
+    const needsUpdate = (keys[W] || keys[S] || keys[A] || keys[D] || keys[MOUSEL] || keys[MOUSER]|| keys[SPACE] || keys[SHIFT] || Bob.currentAction == 'Dodge' || Bob.currentAction == 'DodgePunch')
     if(needsUpdate){
       Bob.characterControls.sendData(socket, keys)
     }
