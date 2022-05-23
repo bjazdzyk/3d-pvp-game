@@ -33,66 +33,73 @@ const powerPunchDamageFactor = 1.5
 const powerPunchRadius = 3
 
 io.on('connection', (socket) => {
-  playersData[socket.id] = {
-    keys:{},
-    currentAction:"Idle",
-    position:{x:0, y:0, z:0}, 
-    walkDirection:{x:0, y:0, z:-1}, 
-    velocity:{'Run':0.15, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
-    maxHp:200, 
-    hp:200, 
-    lockAction:false, 
-    damage: 40, 
-    alive:true, 
-    punchTimeStamp:0, 
-    shieldTimeStamp:0, 
-    jumpTimeStamp:0, 
-    punchedTimeStamp:0, 
-    powerPunchedTimeStamp:0, 
-    powerPunchTimeStamp:0, 
-    dodgeTimeStamp:0,
-    powerPunch: false, 
-    dodgePunch: false,
-    powerPunchDelay:9000
-  }
+  socket.emit('con')
+  socket.on('requestJoin', ()=>{
 
-  socket.emit('arenaSize', arenaSize)
+    socket.emit('joined')
 
-
-  socket.on('requestUpdate', (Data)=>{
-    if(playersData[socket.id].alive){
-      const keys = Data[0]
-
-      playersData[socket.id].keys = keys
-
-      const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
-      const spacePressed = (keys[SPACE])
-      const mouseLeftPressed = (!!playersData[socket.id].keys[MOUSEL])
-      const mouseRightPressed = (!!playersData[socket.id].keys[MOUSER])
-
-
-      if(dirPressed){
-        const dirX = Data[1]
-        const dirZ = Data[2]
-
-        const vectorLength = Math.sqrt(dirX*dirX + dirZ*dirZ)
-
-        const newDirX = dirX / vectorLength
-        const newDirZ = dirZ / vectorLength
-
-        playersData[socket.id].walkDirection = {x:newDirX, y:0, z:newDirZ}
-      }
-
-
-      const rotation = Data[3]
-      playersData[socket.id].rotation = rotation
+    playersData[socket.id] = {
+      keys:{},
+      currentAction:"Idle",
+      position:{x:0, y:0, z:0}, 
+      walkDirection:{x:0, y:0, z:-1}, 
+      velocity:{'Run':0.15, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
+      maxHp:200, 
+      hp:200, 
+      lockAction:false, 
+      damage: 40, 
+      alive:true, 
+      punchTimeStamp:0, 
+      shieldTimeStamp:0, 
+      jumpTimeStamp:0, 
+      punchedTimeStamp:0, 
+      powerPunchedTimeStamp:0, 
+      powerPunchTimeStamp:0, 
+      dodgeTimeStamp:0,
+      powerPunch: false, 
+      dodgePunch: false,
+      powerPunchDelay:9000
     }
 
-    
+    socket.emit('arenaSize', arenaSize)
 
-    io.emit("Data", [playersData])
-    
+
+    socket.on('requestUpdate', (Data)=>{
+      if(playersData[socket.id].alive){
+        const keys = Data[0]
+
+        playersData[socket.id].keys = keys
+
+        const dirPressed = (keys[W] || keys[S] || keys[A] || keys[D])
+        const spacePressed = (keys[SPACE])
+        const mouseLeftPressed = (!!playersData[socket.id].keys[MOUSEL])
+        const mouseRightPressed = (!!playersData[socket.id].keys[MOUSER])
+
+
+        if(dirPressed){
+          const dirX = Data[1]
+          const dirZ = Data[2]
+
+          const vectorLength = Math.sqrt(dirX*dirX + dirZ*dirZ)
+
+          const newDirX = dirX / vectorLength
+          const newDirZ = dirZ / vectorLength
+
+          playersData[socket.id].walkDirection = {x:newDirX, y:0, z:newDirZ}
+        }
+
+
+        const rotation = Data[3]
+        playersData[socket.id].rotation = rotation
+      }
+
+      
+
+      io.emit("Data", [playersData])
+      
+    })
   })
+  
 
   socket.on('disconnect', () => {
     playersData[socket.id] = "disconnected"

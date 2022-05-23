@@ -3,12 +3,12 @@ const playerIcon = document.createElement("div")
 const playerIconUrl = "assets/icon.png"
 playerIcon.setAttribute("id", "playerIcon")
 playerIcon.style["background-image"] = `url(${playerIconUrl})`
-document.body.appendChild(playerIcon)
+
 
 //playerHealthContainer
 const playerHealthContainer = document.createElement("div")
 playerHealthContainer.setAttribute("id", "playerHealthContainer")
-document.body.appendChild(playerHealthContainer)
+
 
 //playerHealthBar
 const playerHealthBar = document.createElement("div")
@@ -20,7 +20,7 @@ const powerPunchDelay = document.createElement('canvas')
 powerPunchDelay.setAttribute("id", "powerPunchDelay")
 powerPunchDelay.width = 100
 powerPunchDelay.height = 100
-document.body.appendChild(powerPunchDelay)
+
 
 const ppctx = powerPunchDelay.getContext('2d')
 
@@ -34,6 +34,10 @@ export class GuiManager{
 
 
 		this.PPdelay = 1000
+
+		document.body.appendChild(playerIcon)
+		document.body.appendChild(playerHealthContainer)
+		document.body.appendChild(powerPunchDelay)
 	}
 
 	setMaxHp(value){

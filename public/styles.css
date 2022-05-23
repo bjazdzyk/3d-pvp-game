@@ -43,3 +43,20 @@ canvas{
 	right: 30px;
 	bottom: 10px;
 }
+#joinButton{
+	position: fixed;
+	display: block;
+	width: 100px;
+	height: 30px;
+	background-color: darkgreen;
+	color: white;
+	font: 15px Helvatica, sans-serif;
+	text-align: center;
+	left: calc(50vw - 50px);
+	top: calc(50vh - 15px);
+
+}
+#joinButton:hover{
+	background-color: green;
+	cursor: pointer;
+}
