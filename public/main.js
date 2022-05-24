@@ -1,6 +1,8 @@
 import * as THREE from '/assets/js/three.js';
 import {OrbitControls} from '/assets/js/OrbitControls.js'
 import {GLTFLoader} from '/assets/js/GLTFLoader.js'
+import {FontLoader} from '/assets/js/FontLoader.js'
+import {TextGeometry} from '/assets/js/TextGeometry.js'
 import { CharacterControls } from '/characterControls.js';
 import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
@@ -221,6 +223,21 @@ socket.on('joined', ()=>{
 
 
 
+  const fontLoader = new FontLoader()
+  let font
+  fontLoader.load('/assets/font.json', (f)=>{
+    font = f
+    // const nickNameGeo = new TextGeometry(`AAAAA`, {
+    //   font:font,
+    //   size:1,
+    //   height:0.0001
+    // })
+    // const nickNameMesh = new THREE.Mesh(nickNameGeo, new THREE.MeshPhongMaterial({ color:0x000000 }))
+    // nickNameMesh.position.set(0, 1, 0)
+    // scene.add(nickNameMesh)
+  })
+
+
 
 
   const assetLoader = new GLTFLoader();
@@ -312,6 +329,7 @@ socket.on('joined', ()=>{
   const playerMixers = {}
   const playerActions = {}
   const playerCurrentActions = {}
+  const playerNicknames = {}
 
 
 
@@ -324,6 +342,11 @@ socket.on('joined', ()=>{
     const delta = clock.getDelta()
 
     for(let i in playersData){
+      if(playerNicknames[i]){
+        playerNicknames[i].rotation.x = camera.rotation.x
+        playerNicknames[i].rotation.y = camera.rotation.y
+        playerNicknames[i].rotation.z = camera.rotation.z
+      }
       if(playerMixers[i]){
         if(i != socket.id && characterControls){
           playerMixers[i].update(delta * characterControls.animationFactors[playerCurrentActions[i]])
@@ -400,17 +423,22 @@ socket.on('joined', ()=>{
       if(playersData[i] == "disconnected"){
         if(playerModels[i]){
           scene.remove(playerModels[i])
+          scene.remove(playerNicknames[i])
+
           playerModels[i] = null
+          playerNicknames[i] = null
         }
       }else{
         if(playerModels[i]){
           playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
+          playerNicknames[i].position.set(playersData[i].position.x, playersData[i].position.y+3, playersData[i].position.z)
           const rotation = playersData[i].rotation
           if(rotation){
             playerModels[i].rotation.x = playersData[i].rotation.x
             playerModels[i].rotation.y = playersData[i].rotation.y
             playerModels[i].rotation.z = playersData[i].rotation.z
           }
+          
 
 
           if(playersData[i].currentAction != playerCurrentActions[i]){
@@ -434,6 +462,19 @@ socket.on('joined', ()=>{
           if(i == socket.id){
 
           }else{
+            console.log(`${playersData[i].nick}`.toUpperCase())
+            const nickNameGeo = new TextGeometry(`${playersData[i].nick}`.toUpperCase(), {
+              font:font,
+              size:0.25,
+              height:0.00001
+            })
+            const nickNameMesh = new THREE.Mesh(nickNameGeo, new THREE.MeshPhongMaterial({ color:0x000000 }))
+            
+            playerNicknames[i] = nickNameMesh
+            scene.add(playerNicknames[i])
+            console.log(nickNameMesh)
+
+            
             if(playerModel){
               const playerClone = SkeletonUtils.clone(playerModel)
               playerClone.position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
