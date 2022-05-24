@@ -1,6 +1,7 @@
 
 const joinButton = document.createElement("div")
 joinButton.setAttribute("id", "joinButton")
+joinButton.style['padding'] = "10px"
 joinButton.innerHTML = "JOIN"
 
 export class LobbyManager{

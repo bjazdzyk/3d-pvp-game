@@ -44,16 +44,17 @@ canvas{
 	bottom: 10px;
 }
 #joinButton{
+	z-index: 3;
 	position: fixed;
 	display: block;
 	width: 100px;
-	height: 30px;
+	height: 15px;
 	background-color: darkgreen;
 	color: white;
-	font: 15px Helvatica, sans-serif;
+	font: 15px sans-serif;
 	text-align: center;
 	left: calc(50vw - 50px);
-	top: calc(50vh - 15px);
+	top: calc(90vh - 15px);
 
 }
 #joinButton:hover{

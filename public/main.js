@@ -20,22 +20,97 @@ const SHIFT = 'ShiftLeft'
 
 let socket = io();
 
+const lobbyManager = new LobbyManager(socket)
+
+
+ 
+//three js setup
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor("skyblue");
+
+document.body.appendChild(renderer.domElement);
+
+let connectionState = 'none'
+
 socket.on('con', ()=>{
-  
-  const lobbyManager = new LobbyManager(socket)
+  connectionState = 'lobby'
+  const scene = new THREE.Scene()
+
+  const camera = new THREE.PerspectiveCamera(
+      55,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+  );
+  camera.position.z = -7
+  const orbit = new OrbitControls(camera, renderer.domElement);
+  orbit.minDistance = 7
+  orbit.maxDistance = 7
+  orbit.enablePan = false
+  orbit.minPolarAngle = Math.PI / 2.25
+  orbit.maxPolarAngle = Math.PI / 2.25
+  orbit.enableZoom = false
+  orbit.target = new THREE.Vector3(0, 1.5, 0)
+  orbit.update();
+
+  const dirLight = new THREE.DirectionalLight()
+  dirLight.position.set(-10, 5, -10)
+  dirLight.target.position.set(0, 0, 0)
+  const dirLight2 = new THREE.DirectionalLight()
+  dirLight2.position.set(10, 5, 10)
+  dirLight2.target.position.set(0, 0, 0)
+  scene.add(dirLight, dirLight2)
+  scene.add(dirLight.target)
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF)
+  scene.add(ambientLight)
+
+  // const geometry = new THREE.BoxGeometry();
+  // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+  // const cube = new THREE.Mesh( geometry, material );
+  // scene.add( cube );
+
+  const assetLoader = new GLTFLoader()
+
+  let lobbyPlayerModel, lobbyPlayerMixer, clips, actions = {}
+
+  assetLoader.load('/assets/Wojownik.glb', function(gltf) {
+    lobbyPlayerModel = gltf.scene;
+    scene.add(lobbyPlayerModel);
+    lobbyPlayerMixer = new THREE.AnimationMixer(lobbyPlayerModel);
+    
+    gltf.scene.traverse(c =>{
+      c.castShadow = true
+    })
+
+    clips = gltf.animations
+    for(let i=0; i<clips.length; i++){
+      const clip = clips[i]
+      const action = lobbyPlayerMixer.clipAction(clip)
+      actions[clip.name] = action
+      actions["Idle"].play()
+    }
+
+  }, undefined, function(error) {
+      console.error(error);
+  });
+
+  const clock = new THREE.Clock()
+  const animate = ()=>{
+    //orbit.update()
+    if(lobbyPlayerMixer){
+      lobbyPlayerMixer.update(clock.getDelta())
+    }
+    renderer.render(scene, camera)
+  }
+  renderer.setAnimationLoop(animate)
 
 })
 
 
 
 socket.on('joined', ()=>{
-
-  //three js setup
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor("skyblue");
-
-  document.body.appendChild(renderer.domElement);
+  connectionState = 'game'
 
   const scene = new THREE.Scene();
 
@@ -269,6 +344,7 @@ socket.on('joined', ()=>{
   	renderer.render(scene, camera);
   }
 
+  renderer.setAnimationLoop(animate);
 
 
   const pointDamage = (x, y, z, radius)=>{
@@ -396,7 +472,7 @@ socket.on('joined', ()=>{
     }
   })
 
-  renderer.setAnimationLoop(animate);
+
 
 
 
