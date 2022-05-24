@@ -34,11 +34,12 @@ const powerPunchRadius = 3
 
 io.on('connection', (socket) => {
   socket.emit('con')
-  socket.on('requestJoin', ()=>{
-
+  socket.on('requestJoin', (nick)=>{
+    console.log(`${nick} joined the game`)
     socket.emit('joined')
 
     playersData[socket.id] = {
+      nick:nick,
       keys:{},
       currentAction:"Idle",
       position:{x:0, y:0, z:0}, 
@@ -143,7 +144,7 @@ const loop = setInterval(()=>{
         }else if((playersData[i].currentAction == "Dodge" && Date.now() - playersData[i].dodgeTimeStamp <= 900) || (playersData[i].currentAction == "DodgePunch" && Date.now() - playersData[i].dodgeTimeStamp <= 1000)){
           
           if(Math.floor((Date.now() - playersData[i].dodgeTimeStamp)/20)== 40 && playersData[i].dodgePunch){
-            console.log("Dodge Punch!")
+            //console.log("Dodge Punch!")
             
             const playerData = playersData[i]
             const x = playerData.walkDirection.x

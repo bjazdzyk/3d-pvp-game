@@ -43,18 +43,35 @@ canvas{
 	right: 30px;
 	bottom: 10px;
 }
-#joinButton{
-	z-index: 3;
-	position: fixed;
+#joinContainer{
+	position: absolute;
+	left: calc(50vw - 100px);
+	top: calc(80vh - 15px);
+	width: 200px;
+}
+#nicknameField{
 	display: block;
-	width: 100px;
+	z-index: 3;
+	position: relative;
+	width: 212px;
+	height: 30px;
+	left: calc(50% - 110px);
+	border: 2px solid black;
+	border-radius: 10px;
+}
+#joinButton{
+	margin-top: 5px;
+	z-index: 3;
+	position: relative;
+	width: 200px;
 	height: 15px;
 	background-color: darkgreen;
 	color: white;
 	font: 15px sans-serif;
+	left: calc(50% - 110px);
 	text-align: center;
-	left: calc(50vw - 50px);
-	top: calc(90vh - 15px);
+	padding: 10px;
+	border-radius: 5px;
 
 }
 #joinButton:hover{
