@@ -5,6 +5,11 @@ playerIcon.setAttribute("id", "playerIcon")
 playerIcon.style["background-image"] = `url(${playerIconUrl})`
 
 
+//playerNickname
+const playerNickname = document.createElement("div")
+playerNickname.setAttribute("id", "playerNickname")
+
+
 //playerHealthContainer
 const playerHealthContainer = document.createElement("div")
 playerHealthContainer.setAttribute("id", "playerHealthContainer")
@@ -27,6 +32,7 @@ const ppctx = powerPunchDelay.getContext('2d')
 
 export class GuiManager{
 	constructor(maxHealth){
+		this.nickname = "Unknown"
 		this.maxHealth = maxHealth
 		this.hp = maxHealth
 		playerHealthContainer.style["width"] = `${this.maxHealth + 10}px`
@@ -36,6 +42,7 @@ export class GuiManager{
 		this.PPdelay = 1000
 
 		document.body.appendChild(playerIcon)
+		document.body.appendChild(playerNickname)
 		document.body.appendChild(playerHealthContainer)
 		document.body.appendChild(powerPunchDelay)
 	}
@@ -95,6 +102,11 @@ export class GuiManager{
 	    ppctx.clip();
 	    ppctx.closePath();
 	    ppctx.restore();
+
+	}
+	setNick(nickname){
+		this.nickname = nickname
+		playerNickname.innerHTML = `${nickname}`
 
 	}
 }

@@ -390,10 +390,12 @@ socket.on('joined', ()=>{
 
 
   socket.on("Data", (Data)=>{
-
     
     playersData = Data[0]
 
+    if(playersData[socket.id].nick != GM.nickname){
+      GM.setNick(playersData[socket.id].nick)
+    }
 
     if(playersData[socket.id].maxHp != GM.maxHealth){
       GM.setMaxHp(playersData[socket.id].maxHp)

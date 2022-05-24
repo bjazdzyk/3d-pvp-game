@@ -26,6 +26,15 @@ canvas{
 	background-color: green;
 	z-index: 3;
 }
+#playerNickname{
+	position: fixed;
+	z-index: 3;
+	top: 10px;
+	left: 75px;
+	height: 22.5px;
+	font: 30px sans-serif;
+
+}
 #playerHealthContainer{
 	position: fixed;
 	top: 42px;
