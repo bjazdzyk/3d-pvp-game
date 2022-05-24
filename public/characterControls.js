@@ -99,12 +99,16 @@ export class CharacterControls{
 		if(this.currentAction != play){
 			const toPlay = this.animationsMap[play]
 			const current = this.animationsMap[this.currentAction]
-
-			if(play == "Death"){
-	            toPlay.setLoop(THREE.LoopOnce)
-	            toPlay.clampWhenFinished = true
+			if(play == "DodgePunch" || play == "PowerPunch"){
+				toPlay.setLoop(THREE.LoopOnce)
+				toPlay.clampWhenFinished = true
 	            toPlay.enable = true
-	          }
+			}
+			if(play == "Death"){
+	        	toPlay.setLoop(THREE.LoopOnce)
+	        	toPlay.clampWhenFinished = true
+	            toPlay.enable = true
+	        }
 			current.fadeOut(this.fadeDurations[play])
 			toPlay.reset().fadeIn(this.fadeDurations[play]).play()
 

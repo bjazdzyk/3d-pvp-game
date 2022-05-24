@@ -51,6 +51,7 @@ socket.on('con', ()=>{
   orbit.minPolarAngle = Math.PI / 2.25
   orbit.maxPolarAngle = Math.PI / 2.25
   orbit.enableZoom = false
+  orbit.enableDamping = true
   orbit.target = new THREE.Vector3(0, 1.5, 0)
   orbit.update();
 
@@ -97,7 +98,7 @@ socket.on('con', ()=>{
 
   const clock = new THREE.Clock()
   const animate = ()=>{
-    //orbit.update()
+    orbit.update()
     if(lobbyPlayerMixer){
       lobbyPlayerMixer.update(clock.getDelta())
     }

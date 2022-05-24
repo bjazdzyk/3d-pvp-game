@@ -140,7 +140,7 @@ const loop = setInterval(()=>{
           playersData[i].lockAction = true
 
 
-        }else if((playersData[i].currentAction == "Dodge" && Date.now() - playersData[i].dodgeTimeStamp <= 900) || (playersData[i].currentAction == "DodgePunch" && Date.now() - playersData[i].dodgeTimeStamp <= 900)){
+        }else if((playersData[i].currentAction == "Dodge" && Date.now() - playersData[i].dodgeTimeStamp <= 900) || (playersData[i].currentAction == "DodgePunch" && Date.now() - playersData[i].dodgeTimeStamp <= 1000)){
           
           if(Math.floor((Date.now() - playersData[i].dodgeTimeStamp)/20)== 40 && playersData[i].dodgePunch){
             console.log("Dodge Punch!")
@@ -212,7 +212,7 @@ const loop = setInterval(()=>{
           playersData[i].lockAction = true
 
 
-        }else if((playersData[i].currentAction == 'Jump' && Date.now() - playersData[i].jumpTimeStamp <= 550) || (playersData[i].currentAction == 'PowerPunch' && Date.now() - playersData[i].jumpTimeStamp <= 750)){
+        }else if((playersData[i].currentAction == 'Jump' && Date.now() - playersData[i].jumpTimeStamp <= 550) || (playersData[i].currentAction == 'PowerPunch' && Date.now() - playersData[i].jumpTimeStamp <= 800)){
 
           if(Math.floor((Date.now() - playersData[i].jumpTimeStamp)/20)==25 && playersData[i].powerPunch){
             //console.log("Power Punch!!!")
