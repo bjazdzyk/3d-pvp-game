@@ -175,9 +175,10 @@ const loop = setInterval(()=>{
                     playersData[j].punchedTimeStamp = Date.now()
                     
                   }
+
                   if(playersData[j].hp<=0){
-                    playersData[j].hp -= playersData[i].damage
                     playersData[j].alive = false
+                    playersData[j].hp = 0
                     playersData[j].currentAction = "Death"
                   }
                   io.emit("Data", [playersData])
@@ -248,7 +249,7 @@ const loop = setInterval(()=>{
                     playersData[j].powerPunchedTimeStamp = Date.now()
                   }
                   if(playersData[j].hp<=0){
-                    playersData[j].hp -= playersData[i].damage
+                    playersData[j].hp = 0
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
                   }
@@ -312,10 +313,12 @@ const loop = setInterval(()=>{
                   }else{
                     playersData[j].hp -= playersData[i].damage
                     playersData[j].punchedTimeStamp = Date.now()
+                    console.log("l")
                     
                   }
+
                   if(playersData[j].hp<=0){
-                    playersData[j].hp -= playersData[i].damage
+                    playersData[j].hp = 0
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
                   }
