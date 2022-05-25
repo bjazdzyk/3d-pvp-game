@@ -279,16 +279,20 @@ socket.on('joined', ()=>{
 
 
 
-  //loading fence model & cloning
+  //loading fence model & cloning & trees
   let arenaSize
   const fenceOffset = 7.5
   let fenceModel
+  let treeModel
 
   socket.on('arenaSize', (size)=>{
 
     arenaSize = size
 
     assetLoader.load('/assets/fence.glb', function(gltf) {
+      gltf.scene.traverse(c =>{
+        c.castShadow = true
+      })
       fenceModel = gltf.scene
       //scene.add(fenceModel)
     
@@ -311,9 +315,33 @@ socket.on('joined', ()=>{
       }
     
     
-      gltf.scene.traverse(c =>{
-        c.castShadow = true
-      })
+      
+    }, undefined, function(error) {
+        console.error(error);
+    })
+
+
+
+
+    assetLoader.load('/assets/tree.glb', (gltf)=>{
+      treeModel = gltf.scene
+
+
+      for(let i=-200; i<200; i+=20){
+        for(let j=-200; j<200; j+=20){
+          const x = i + Math.random()*10
+          const z = j + Math.random()*10
+          if((x<-arenaSize/2-2 || x>arenaSize/2+2) || (z<-arenaSize/2-2 || z>arenaSize/2+2)){
+            const treeClone = SkeletonUtils.clone(treeModel)
+            treeClone.position.set(x, 0, z)
+            treeClone.rotation.y = Math.random()*2*Math.PI
+            let size = Math.random()*2+0.3
+            treeClone.scale.set(size, size, size)
+            scene.add(treeClone)
+          }
+        }
+      }
+
     }, undefined, function(error) {
         console.error(error);
     })
