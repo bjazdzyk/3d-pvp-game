@@ -8,6 +8,7 @@ import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
 import { GuiManager } from '/Gui.js';
 import { LobbyManager } from '/lobby.js';
+import {TWEEN} from '/assets/js/Tween.js'
 
 
 const W = 'KeyW'
@@ -19,6 +20,7 @@ const MOUSER = 'Mouse3'
 const SPACE = 'Space'
 const SHIFT = 'ShiftLeft'
 
+console.log(TWEEN)
 
 let socket = io();
 
@@ -131,8 +133,12 @@ socket.on('con', ()=>{
       console.error(error);
   });
 
+
+  let selected = 1
+
   const clock = new THREE.Clock()
-  const animate = ()=>{
+  const animate = (time)=>{
+    TWEEN.update(time)
     orbit.update()
     const delta = clock.getDelta()
     for(let i in lobbyPlayerMixers){
@@ -141,6 +147,38 @@ socket.on('con', ()=>{
       }
     }
     renderer.render(scene, camera)
+    const d = lobbyManager.changeSelected
+    if(d){
+      if(skinNames[selected+d]){
+        for(let i in lobbyPlayerModels){
+          let coords = {x:lobbyPlayerModels[i].position.x, z:lobbyPlayerModels[i].position.z}
+
+          let endCoords = {}
+          if(coords.x + d > 0){
+            endCoords.z = coords.z + 5*d
+            //lobbyPlayerModels[i].position.z += 5*d
+          }else{
+            endCoords.z = coords.z + 5*d*-1
+            //lobbyPlayerModels[i].position.z += 5*d*-1
+          }
+          endCoords.x = coords.x + 5*d
+          //lobbyPlayerModels[i].position.x += 5*d
+
+          let tween = new TWEEN.Tween(coords)
+            .to(endCoords, 500)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(()=>{
+              lobbyPlayerModels[i].position.x = coords.x
+              lobbyPlayerModels[i].position.z = coords.z
+            })
+            .start()
+          console.log(coords, endCoords)
+        }
+        selected += d
+        console.log(selected)
+        lobbyManager.changeSelected = 0
+      }
+    }
   }
   renderer.setAnimationLoop(animate)
 

@@ -58,6 +58,42 @@ canvas{
 	top: calc(80vh - 15px);
 	width: 200px;
 }
+
+#skinSwitchContainer{
+	z-index: 3;
+	position: fixed;
+	width: 80vw;
+	height: 80vh;
+	left: 10vw;
+	top: 10vh;
+}
+.skinSwitch{
+	font: 16px monospace;
+	background-color: green;
+	text-align: center;
+	line-height: 90px;
+	position: absolute;
+	width: 40px;
+	height: 90px;
+	top: calc(50% - 45px);
+	opacity: 0.8;
+	user-select: none;
+}
+.skinSwitch:hover{
+	cursor: pointer;
+}
+#skinSwitchLeft{
+	left: 0px;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+#skinSwitchRight{
+	right: 0px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+
 #nicknameField{
 	display: block;
 	z-index: 3;
