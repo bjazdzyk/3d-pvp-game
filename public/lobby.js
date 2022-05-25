@@ -46,6 +46,7 @@ export class LobbyManager{
 
 		joinButton.addEventListener('click', (e)=>{
 			joinContainer.style["display"] = "none"
+			skinSwitchContainer.style["display"] = "none"
 			let nick = "Unknown"
 			if(nicknameField.value){
 				nick = nicknameField.value
