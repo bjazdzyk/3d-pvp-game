@@ -54,6 +54,7 @@ socket.on('con', ()=>{
   orbit.maxPolarAngle = Math.PI / 2.25
   orbit.enableZoom = false
   orbit.enableDamping = true
+  orbit.enabled = false
   orbit.target = new THREE.Vector3(0, 1.5, 0)
   orbit.update();
 
@@ -68,6 +69,12 @@ socket.on('con', ()=>{
   const ambientLight = new THREE.AmbientLight(0xFFFFFF)
   scene.add(ambientLight)
 
+
+  const color = 0xaaaaaa;  // white
+  const near = 10;
+  const far = 13
+  scene.fog = new THREE.Fog(color, near, far);
+
   // const geometry = new THREE.BoxGeometry();
   // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
   // const cube = new THREE.Mesh( geometry, material );
@@ -75,13 +82,15 @@ socket.on('con', ()=>{
 
   const assetLoader = new GLTFLoader()
 
-  let lobbyPlayerModel, lobbyPlayerMixer, clips, actions = {}
+  const skinNames = {1:"Bob", 2:"Tina"}
+  let lobbyPlayerModels = {}, lobbyPlayerMixers = {}, clips, actions = {}
 
   assetLoader.load('/assets/Wojownik.glb', function(gltf) {
-    lobbyPlayerModel = gltf.scene;
-    scene.add(lobbyPlayerModel);
-    lobbyPlayerMixer = new THREE.AnimationMixer(lobbyPlayerModel);
-    
+    lobbyPlayerModels['Bob'] = gltf.scene;
+    lobbyPlayerModels['Bob'].position.x = 0
+    scene.add(lobbyPlayerModels['Bob']);
+    lobbyPlayerMixers['Bob'] = new THREE.AnimationMixer(lobbyPlayerModels['Bob']);
+    actions['Bob'] = {}
     gltf.scene.traverse(c =>{
       c.castShadow = true
     })
@@ -89,9 +98,33 @@ socket.on('con', ()=>{
     clips = gltf.animations
     for(let i=0; i<clips.length; i++){
       const clip = clips[i]
-      const action = lobbyPlayerMixer.clipAction(clip)
-      actions[clip.name] = action
-      actions["Idle"].play()
+      const action = lobbyPlayerMixers['Bob'].clipAction(clip)
+      actions['Bob'][clip.name] = action
+      actions['Bob']["Idle"].play()
+    }
+
+  }, undefined, function(error) {
+      console.error(error);
+  });
+
+  assetLoader.load('/assets/Girl.glb', function(gltf) {
+    lobbyPlayerModels['Tina'] = gltf.scene;
+    lobbyPlayerModels['Tina'].position.x = -5
+    lobbyPlayerModels['Tina'].position.z = 5
+    scene.add(lobbyPlayerModels['Tina']);
+    lobbyPlayerMixers['Tina'] = new THREE.AnimationMixer(lobbyPlayerModels['Tina']);
+    actions['Tina'] = {}
+
+    gltf.scene.traverse(c =>{
+      c.castShadow = true
+    })
+
+    clips = gltf.animations
+    for(let i=0; i<clips.length; i++){
+      const clip = clips[i]
+      const action = lobbyPlayerMixers['Tina'].clipAction(clip)
+      actions['Tina'][clip.name] = action
+      actions['Tina']["Idle"].play()
     }
 
   }, undefined, function(error) {
@@ -101,8 +134,11 @@ socket.on('con', ()=>{
   const clock = new THREE.Clock()
   const animate = ()=>{
     orbit.update()
-    if(lobbyPlayerMixer){
-      lobbyPlayerMixer.update(clock.getDelta())
+    const delta = clock.getDelta()
+    for(let i in lobbyPlayerMixers){
+      if(lobbyPlayerMixers[i]){
+        lobbyPlayerMixers[i].update(delta)
+      }
     }
     renderer.render(scene, camera)
   }
@@ -227,14 +263,6 @@ socket.on('joined', ()=>{
   let font
   fontLoader.load('/assets/font.json', (f)=>{
     font = f
-    // const nickNameGeo = new TextGeometry(`AAAAA`, {
-    //   font:font,
-    //   size:1,
-    //   height:0.0001
-    // })
-    // const nickNameMesh = new THREE.Mesh(nickNameGeo, new THREE.MeshPhongMaterial({ color:0x000000 }))
-    // nickNameMesh.position.set(0, 1, 0)
-    // scene.add(nickNameMesh)
   })
 
 
@@ -243,16 +271,17 @@ socket.on('joined', ()=>{
   const assetLoader = new GLTFLoader();
   //loading player model
 
-  let playerModel, mixer, actions = {};
+  let skins = {}, mixers = {}, actions = {};
   let walking = false
   let characterControls
   let Bob
   let clips
 
   assetLoader.load('/assets/Wojownik.glb', function(gltf) {
-    playerModel = gltf.scene;
-    scene.add(playerModel);
-    mixer = new THREE.AnimationMixer(playerModel);
+    skins['Bob'] = gltf.scene;
+    scene.add(skins['Bob']);
+    mixers['Bob'] = new THREE.AnimationMixer(skins['Bob']);
+    actions['Bob'] = {}
     
 
     gltf.scene.traverse(c =>{
@@ -263,12 +292,12 @@ socket.on('joined', ()=>{
     clips = gltf.animations
     for(let i=0; i<clips.length; i++){
       const clip = clips[i]
-      const action = mixer.clipAction(clip)
-      actions[clip.name] = action
+      const action = mixers['Bob'].clipAction(clip)
+      actions['Bob'][clip.name] = action
     }
 
-    characterControls = new CharacterControls(playerModel, mixer, actions, orbit, camera,  'Idle')
-    Bob = new Player(socket.id, playerModel, mixer, characterControls)
+    characterControls = new CharacterControls(skins['Bob'], mixers['Bob'], actions['Bob'], orbit, camera,  'Idle')
+    Bob = new Player(socket.id, skins['Bob'], mixers['Bob'], characterControls)
     Bob.characterControls.sendData(socket, keys)
 
   }, undefined, function(error) {
@@ -505,8 +534,8 @@ socket.on('joined', ()=>{
             console.log(nickNameMesh)
 
             
-            if(playerModel){
-              const playerClone = SkeletonUtils.clone(playerModel)
+            if(skins['Bob']){
+              const playerClone = SkeletonUtils.clone(skins['Bob'])
               playerClone.position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
               scene.add(playerClone)
               playerModels[i] = playerClone
