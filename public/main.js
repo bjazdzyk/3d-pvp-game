@@ -1,10 +1,10 @@
 import * as THREE from '/assets/js/three.js';
 import {OrbitControls} from '/assets/js/OrbitControls.js'
+import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import {GLTFLoader} from '/assets/js/GLTFLoader.js'
 import {FontLoader} from '/assets/js/FontLoader.js'
 import {TextGeometry} from '/assets/js/TextGeometry.js'
 import { CharacterControls } from '/characterControls.js';
-import { PointerLockControls } from '/assets/js/PointerLockControls.js'
 import * as SkeletonUtils from '/assets/js/SkeletonUtils.js'
 import { GuiManager } from '/Gui.js';
 import { LobbyManager } from '/lobby.js';
@@ -20,7 +20,6 @@ const MOUSER = 'Mouse3'
 const SPACE = 'Space'
 const SHIFT = 'ShiftLeft'
 
-console.log(TWEEN)
 
 let socket = io();
 
@@ -36,6 +35,9 @@ renderer.setClearColor("skyblue");
 document.body.appendChild(renderer.domElement);
 
 let connectionState = 'none'
+
+const skinNames = {1:'Bob', 2:'Tina'}
+const modelUrls = {'Bob':'/assets/Wojownik.glb', 'Tina':'/assets/Girl.glb'}
 
 socket.on('con', ()=>{
   connectionState = 'lobby'
@@ -60,6 +62,25 @@ socket.on('con', ()=>{
   orbit.target = new THREE.Vector3(0, 1.5, 0)
   orbit.update();
 
+
+
+  const pointerLock = new PointerLockControls( camera, document.body)
+
+  joinButton.addEventListener( 'click', function () {
+    pointerLock.lock();
+  } );
+
+  pointerLock.addEventListener( 'lock', function () {
+  //
+  } );
+
+  pointerLock.addEventListener( 'unlock', function () {
+  //
+  } );
+
+
+
+
   const dirLight = new THREE.DirectionalLight()
   dirLight.position.set(-10, 5, -10)
   dirLight.target.position.set(0, 0, 0)
@@ -77,61 +98,36 @@ socket.on('con', ()=>{
   const far = 13
   scene.fog = new THREE.Fog(color, near, far);
 
-  // const geometry = new THREE.BoxGeometry();
-  // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-  // const cube = new THREE.Mesh( geometry, material );
-  // scene.add( cube );
+
 
   const assetLoader = new GLTFLoader()
 
-  const skinNames = {1:"Bob", 2:"Tina"}
   let lobbyPlayerModels = {}, lobbyPlayerMixers = {}, clips, actions = {}
 
-  assetLoader.load('/assets/Wojownik.glb', function(gltf) {
-    lobbyPlayerModels['Bob'] = gltf.scene;
-    lobbyPlayerModels['Bob'].position.x = 0
-    scene.add(lobbyPlayerModels['Bob']);
-    lobbyPlayerMixers['Bob'] = new THREE.AnimationMixer(lobbyPlayerModels['Bob']);
-    actions['Bob'] = {}
-    gltf.scene.traverse(c =>{
-      c.castShadow = true
-    })
+  for(let i in skinNames){
+    assetLoader.load(modelUrls[skinNames[i]], function(gltf) {
+      lobbyPlayerModels[skinNames[i]] = gltf.scene;
+      lobbyPlayerModels[skinNames[i]].position.x = (i-1)*-5
+      lobbyPlayerModels[skinNames[i]].position.z = (i-1)*5
+      scene.add(lobbyPlayerModels[skinNames[i]]);
+      lobbyPlayerMixers[skinNames[i]] = new THREE.AnimationMixer(lobbyPlayerModels[skinNames[i]]);
+      actions[skinNames[i]] = {}
+      gltf.scene.traverse(c =>{
+        c.castShadow = true
+      })
 
-    clips = gltf.animations
-    for(let i=0; i<clips.length; i++){
-      const clip = clips[i]
-      const action = lobbyPlayerMixers['Bob'].clipAction(clip)
-      actions['Bob'][clip.name] = action
-      actions['Bob']["Idle"].play()
-    }
+      clips = gltf.animations
+      for(let j=0; j<clips.length; j++){
+        const clip = clips[j]
+        const action = lobbyPlayerMixers[skinNames[i]].clipAction(clip)
+        actions[skinNames[i]][clip.name] = action
+        actions[skinNames[i]]["Idle"].play()
+      }
 
-  }, undefined, function(error) {
-      console.error(error);
-  });
-
-  assetLoader.load('/assets/Girl.glb', function(gltf) {
-    lobbyPlayerModels['Tina'] = gltf.scene;
-    lobbyPlayerModels['Tina'].position.x = -5
-    lobbyPlayerModels['Tina'].position.z = 5
-    scene.add(lobbyPlayerModels['Tina']);
-    lobbyPlayerMixers['Tina'] = new THREE.AnimationMixer(lobbyPlayerModels['Tina']);
-    actions['Tina'] = {}
-
-    gltf.scene.traverse(c =>{
-      c.castShadow = true
-    })
-
-    clips = gltf.animations
-    for(let i=0; i<clips.length; i++){
-      const clip = clips[i]
-      const action = lobbyPlayerMixers['Tina'].clipAction(clip)
-      actions['Tina'][clip.name] = action
-      actions['Tina']["Idle"].play()
-    }
-
-  }, undefined, function(error) {
-      console.error(error);
-  });
+    }, undefined, function(error) {
+        console.error(error);
+    });
+  }
 
 
   let selected = 1
@@ -175,6 +171,8 @@ socket.on('con', ()=>{
           console.log(coords, endCoords)
         }
         selected += d
+        lobbyManager.skin = skinNames[selected]
+        console.log(lobbyManager.skin)
         console.log(selected)
         lobbyManager.changeSelected = 0
       }
@@ -186,7 +184,7 @@ socket.on('con', ()=>{
 
 
 
-socket.on('joined', ()=>{
+socket.on('joined', (skin)=>{
   connectionState = 'game'
 
   const scene = new THREE.Scene();
@@ -210,32 +208,11 @@ socket.on('joined', ()=>{
 
 
 
-
-
-
-
-  //pointerLock & resize events
-  const pointerLock = new PointerLockControls( camera, document.body)
-
-  document.addEventListener( 'click', function () {
-    pointerLock.lock();
-  } );
-
-  pointerLock.addEventListener( 'lock', function () {
-    //
-  } );
-
-  pointerLock.addEventListener( 'unlock', function () {
-    //
-  } );
   window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
-
-
-
 
 
 
@@ -314,6 +291,7 @@ socket.on('joined', ()=>{
   let characterControls
   let Bob
   let clips
+
 
   assetLoader.load('/assets/Wojownik.glb', function(gltf) {
     skins['Bob'] = gltf.scene;

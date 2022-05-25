@@ -34,12 +34,15 @@ const powerPunchRadius = 3
 
 io.on('connection', (socket) => {
   socket.emit('con')
-  socket.on('requestJoin', (nick)=>{
+  socket.on('requestJoin', (Data)=>{
+
+    const nick = Data.nick
+    const skin = Data.skin
     console.log(`${nick} joined the game`)
-    socket.emit('joined')
 
     playersData[socket.id] = {
       nick:nick,
+      skin:skin,
       keys:{},
       currentAction:"Idle",
       position:{x:0, y:0, z:0}, 
@@ -62,6 +65,7 @@ io.on('connection', (socket) => {
       powerPunchDelay:9000
     }
 
+    socket.emit('joined', playersData[socket.id].skin)
     socket.emit('arenaSize', arenaSize)
 
 

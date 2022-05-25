@@ -1,4 +1,3 @@
-
 const joinContainer = document.createElement("d")
 joinContainer.setAttribute("id", "joinContainer")
 
@@ -28,6 +27,8 @@ const skinSwitchContainer = document.createElement("div")
 skinSwitchContainer.setAttribute("id", "skinSwitchContainer")
 
 
+//pointerLock & resize events
+
 
 export class LobbyManager{
 	constructor(socket){
@@ -52,7 +53,7 @@ export class LobbyManager{
 				nick = nicknameField.value
 			}
 			console.log(nick)
-			this.socket.emit('requestJoin', nick)
+			this.socket.emit('requestJoin', {nick:nick, skin:this.skin})
 		})
 		skinSwitchRight.addEventListener('click', (e)=>{
 			this.changeSelected = 1
