@@ -121,8 +121,9 @@ socket.on('con', ()=>{
         const clip = clips[j]
         const action = lobbyPlayerMixers[skinNames[i]].clipAction(clip)
         actions[skinNames[i]][clip.name] = action
-        actions[skinNames[i]]["Idle"].play()
+        
       }
+      actions[skinNames[i]]["Idle"].play()
 
     }, undefined, function(error) {
         console.error(error);
@@ -292,34 +293,41 @@ socket.on('joined', (skin)=>{
   let Bob
   let clips
 
+  for(let i in skinNames){
+    assetLoader.load(modelUrls[skinNames[i]], function(gltf) {
 
-  assetLoader.load('/assets/Wojownik.glb', function(gltf) {
-    skins['Bob'] = gltf.scene;
-    scene.add(skins['Bob']);
-    mixers['Bob'] = new THREE.AnimationMixer(skins['Bob']);
-    actions['Bob'] = {}
-    
+      skins[skinNames[i]] = gltf.scene;
 
-    gltf.scene.traverse(c =>{
-      c.castShadow = true
-    })
+      if(skinNames[i] == skin){
+        scene.add(skins[skinNames[i]]);
+        mixers[skinNames[i]] = new THREE.AnimationMixer(skins[skinNames[i]]);
+        
+        actions[skinNames[i]] = {}
+        
+
+        
 
 
-    clips = gltf.animations
-    for(let i=0; i<clips.length; i++){
-      const clip = clips[i]
-      const action = mixers['Bob'].clipAction(clip)
-      actions['Bob'][clip.name] = action
-    }
+        clips = gltf.animations
+        for(let j=0; j<clips.length; j++){
+          const clip = clips[j]
+          const action = mixers[skinNames[i]].clipAction(clip)
+          actions[skinNames[i]][clip.name] = action
+        }
 
-    characterControls = new CharacterControls(skins['Bob'], mixers['Bob'], actions['Bob'], orbit, camera,  'Idle')
-    Bob = new Player(socket.id, skins['Bob'], mixers['Bob'], characterControls)
-    Bob.characterControls.sendData(socket, keys)
+        characterControls = new CharacterControls(skins[skin], mixers[skin], actions[skin], orbit, camera,  'Idle')
+        Bob = new Player(socket.id, skins[skin], mixers[skin], characterControls)
+        Bob.characterControls.sendData(socket, keys)
+      }
 
-  }, undefined, function(error) {
-      console.error(error);
-  });
+      skins[skinNames[i]].traverse(c =>{
+        c.castShadow = true
+      })
 
+    }, undefined, function(error) {
+        console.error(error);
+    });
+  }
 
 
 
@@ -549,9 +557,9 @@ socket.on('joined', (skin)=>{
             scene.add(playerNicknames[i])
             console.log(nickNameMesh)
 
-            
-            if(skins['Bob']){
-              const playerClone = SkeletonUtils.clone(skins['Bob'])
+            const skin = playersData[i].skin
+            if(skins[skin]){
+              const playerClone = SkeletonUtils.clone(skins[skin])
               playerClone.position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
               scene.add(playerClone)
               playerModels[i] = playerClone
