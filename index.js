@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
 
     socket.emit('joined', playersData[socket.id].skin)
     socket.emit('arenaSize', arenaSize)
-    socket.emit('powerPunchDelay', {delay:0})
+    socket.emit('powerPunchDelay', {delay:1})
 
 
     socket.on('requestUpdate', (Data)=>{
