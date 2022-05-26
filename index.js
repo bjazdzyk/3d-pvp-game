@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
       currentAction:"Idle",
       position:{x:0, y:0, z:0}, 
       walkDirection:{x:0, y:0, z:-1}, 
-      velocity:{'Run':0.15, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
+      velocity:{'Run':0.2, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
       maxHp:200, 
       hp:200, 
       lockAction:false, 
@@ -67,6 +67,7 @@ io.on('connection', (socket) => {
 
     socket.emit('joined', playersData[socket.id].skin)
     socket.emit('arenaSize', arenaSize)
+    socket.emit('powerPunchDelay', {delay:0})
 
 
     socket.on('requestUpdate', (Data)=>{
@@ -100,7 +101,7 @@ io.on('connection', (socket) => {
 
       
 
-      io.emit("Data", [playersData])
+      //io.emit("Data", [playersData])
       
     })
   })
@@ -115,6 +116,9 @@ io.on('connection', (socket) => {
 
 
 
+const sendData = setInterval(()=>{
+  io.emit("Data", [playersData], true)
+}, 100)
 
 
 const loop = setInterval(()=>{
@@ -418,6 +422,7 @@ const loop = setInterval(()=>{
     }
   }
 }, 20)
+
 
 
 

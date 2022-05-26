@@ -428,7 +428,8 @@ socket.on('joined', (skin)=>{
 
   const clock = new THREE.Clock();
 
-  function animate() {
+  function animate(time) {
+    TWEEN.update(time)
 
     const delta = clock.getDelta()
 
@@ -483,8 +484,8 @@ socket.on('joined', (skin)=>{
   })
 
 
+  socket.on("Data", (Data, movement=false)=>{
 
-  socket.on("Data", (Data)=>{
     
     playersData = Data[0]
 
@@ -507,12 +508,30 @@ socket.on('joined', (skin)=>{
     }
 
     //movement
-    if(Bob){
+    if(movement){
+      if(Bob){
 
-      const x = playersData[socket.id].position.x
-      const y = playersData[socket.id].position.y
-      const z = playersData[socket.id].position.z
-      Bob.characterControls.updateMovement(x, y, z)
+        const startX = Bob.model.position.x
+        const startY = Bob.model.position.y
+        const startZ = Bob.model.position.z
+
+        const x = playersData[socket.id].position.x
+        const y = playersData[socket.id].position.y
+        const z = playersData[socket.id].position.z
+        Bob.characterControls.updateMovement(x, y, z)
+        
+        const coords = {x:startX, y:startY, z:startZ}
+        const endCoords = {x:x, y:y, z:z}
+
+        let tween = new TWEEN.Tween(coords)
+          .to(endCoords, 100)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onUpdate(()=>{
+            Bob.characterControls.updateMovement(coords.x, coords.y, coords.z)
+          })
+          .start()
+
+      }
     }
 
     for(let i in playersData){
@@ -520,9 +539,12 @@ socket.on('joined', (skin)=>{
       if(playersData[i] == "disconnected"){
         if(playerModels[i]){
           scene.remove(playerModels[i])
-          scene.remove(playerNicknames[i])
-
           playerModels[i] = null
+
+          
+        }
+        if(playerNicknames[i]){
+          scene.remove(playerNicknames[i])
           playerNicknames[i] = null
         }
       }else{

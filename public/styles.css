@@ -47,8 +47,9 @@ canvas{
 
 
 #powerPunchDelay{
+	display: block;
 	position: fixed;
-	z-index: 2;
+	z-index: 3;
 	right: 30px;
 	bottom: 10px;
 }

@@ -52,7 +52,6 @@ export class LobbyManager{
 			if(nicknameField.value){
 				nick = nicknameField.value
 			}
-			console.log(nick)
 			this.socket.emit('requestJoin', {nick:nick, skin:this.skin})
 		})
 		skinSwitchRight.addEventListener('click', (e)=>{
