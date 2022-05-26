@@ -102,7 +102,7 @@ socket.on('con', ()=>{
 
   const assetLoader = new GLTFLoader()
 
-  let lobbyPlayerModels = {}, lobbyPlayerMixers = {}, clips, actions = {}
+  let lobbyPlayerModels = {}, lobbyPlayerMixers = {}, clips = {}, actions = {}
 
   for(let i in skinNames){
     assetLoader.load(modelUrls[skinNames[i]], function(gltf) {
@@ -116,9 +116,9 @@ socket.on('con', ()=>{
         c.castShadow = true
       })
 
-      clips = gltf.animations
-      for(let j=0; j<clips.length; j++){
-        const clip = clips[j]
+      clips[skinNames[i]] = gltf.animations
+      for(let j=0; j<clips[skinNames[i]].length; j++){
+        const clip = clips[skinNames[i]][j]
         const action = lobbyPlayerMixers[skinNames[i]].clipAction(clip)
         actions[skinNames[i]][clip.name] = action
         
@@ -169,12 +169,9 @@ socket.on('con', ()=>{
               lobbyPlayerModels[i].position.z = coords.z
             })
             .start()
-          console.log(coords, endCoords)
         }
         selected += d
         lobbyManager.skin = skinNames[selected]
-        console.log(lobbyManager.skin)
-        console.log(selected)
         lobbyManager.changeSelected = 0
       }
     }
@@ -291,12 +288,14 @@ socket.on('joined', (skin)=>{
   let walking = false
   let characterControls
   let Bob
-  let clips
+  let clips = {}
 
   for(let i in skinNames){
     assetLoader.load(modelUrls[skinNames[i]], function(gltf) {
 
       skins[skinNames[i]] = gltf.scene;
+      clips[skinNames[i]] = gltf.animations
+
 
       if(skinNames[i] == skin){
         scene.add(skins[skinNames[i]]);
@@ -306,11 +305,8 @@ socket.on('joined', (skin)=>{
         
 
         
-
-
-        clips = gltf.animations
-        for(let j=0; j<clips.length; j++){
-          const clip = clips[j]
+        for(let j=0; j<clips[skinNames[i]].length; j++){
+          const clip = clips[skinNames[i]][j]
           const action = mixers[skinNames[i]].clipAction(clip)
           actions[skinNames[i]][clip.name] = action
         }
@@ -337,6 +333,7 @@ socket.on('joined', (skin)=>{
   const fenceOffset = 7.5
   let fenceModel
   let treeModel
+  let treeMixers =[]
 
   socket.on('arenaSize', (size)=>{
 
@@ -375,13 +372,14 @@ socket.on('joined', (skin)=>{
 
 
 
+    
 
     assetLoader.load('/assets/tree.glb', (gltf)=>{
       treeModel = gltf.scene
 
 
-      for(let i=-200; i<200; i+=20){
-        for(let j=-200; j<200; j+=20){
+      for(let i=-100; i<100; i+=15){
+        for(let j=-100; j<100; j+=15){
           const x = i + Math.random()*10
           const z = j + Math.random()*10
           if((x<-arenaSize/2-2 || x>arenaSize/2+2) || (z<-arenaSize/2-2 || z>arenaSize/2+2)){
@@ -391,6 +389,18 @@ socket.on('joined', (skin)=>{
             let size = Math.random()*2+0.3
             treeClone.scale.set(size, size, size)
             scene.add(treeClone)
+
+            const treeMixer = new THREE.AnimationMixer(treeClone)
+            const treeActions = {}
+            clips['tree'] = gltf.animations
+            for(let k=0; k<clips['tree'].length; k++){
+              const clip = clips['tree'][k]
+              const action = treeMixer.clipAction(clip)
+              treeActions[clip.name] = action
+            }
+            treeActions["Idle"].play()
+
+            treeMixers.push(treeMixer)
           }
         }
       }
@@ -421,6 +431,10 @@ socket.on('joined', (skin)=>{
   function animate() {
 
     const delta = clock.getDelta()
+
+    for(let i of treeMixers){
+      i.update(delta*(Math.random()*0.1+0.5))
+    }
 
     for(let i in playersData){
       if(playerNicknames[i]){
@@ -524,7 +538,7 @@ socket.on('joined', (skin)=>{
           
 
 
-          if(playersData[i].currentAction != playerCurrentActions[i]){
+          if(playersData[i].currentAction != playerCurrentActions[i] && playerActions[i]){
             const toPlay = playerActions[i][playersData[i].currentAction]
             const current = playerActions[i][playerCurrentActions[i]]
 
@@ -545,7 +559,6 @@ socket.on('joined', (skin)=>{
           if(i == socket.id){
 
           }else{
-            console.log(`${playersData[i].nick}`.toUpperCase())
             const nickNameGeo = new TextGeometry(`${playersData[i].nick}`.toUpperCase(), {
               font:font,
               size:0.25,
@@ -555,7 +568,6 @@ socket.on('joined', (skin)=>{
             
             playerNicknames[i] = nickNameMesh
             scene.add(playerNicknames[i])
-            console.log(nickNameMesh)
 
             const skin = playersData[i].skin
             if(skins[skin]){
@@ -566,9 +578,8 @@ socket.on('joined', (skin)=>{
 
               const cloneMixer = new THREE.AnimationMixer(playerClone);
               const cloneActions = {}
-
-              for(let i=0; i<clips.length; i++){
-                const clip = clips[i]
+              for(let i=0; i<clips[skin].length; i++){
+                const clip = clips[skin][i]
                 const action = cloneMixer.clipAction(clip)
                 cloneActions[clip.name] = action
               }

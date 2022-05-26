@@ -318,7 +318,6 @@ const loop = setInterval(()=>{
                   }else{
                     playersData[j].hp -= playersData[i].damage
                     playersData[j].punchedTimeStamp = Date.now()
-                    console.log("l")
                     
                   }
 
