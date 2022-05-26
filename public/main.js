@@ -581,15 +581,17 @@ socket.on('joined', (skin)=>{
           if(i == socket.id){
 
           }else{
-            const nickNameGeo = new TextGeometry(`${playersData[i].nick}`.toUpperCase(), {
-              font:font,
-              size:0.25,
-              height:0.00001
-            })
-            const nickNameMesh = new THREE.Mesh(nickNameGeo, new THREE.MeshPhongMaterial({ color:0x000000 }))
-            
-            playerNicknames[i] = nickNameMesh
-            scene.add(playerNicknames[i])
+            if(!playerNicknames[i] && font){
+              const nickNameGeo = new TextGeometry(`${playersData[i].nick}`.toUpperCase(), {
+                font:font,
+                size:0.25,
+                height:0.00001
+              })
+              const nickNameMesh = new THREE.Mesh(nickNameGeo, new THREE.MeshPhongMaterial({ color:0x000000 }))
+              
+              playerNicknames[i] = nickNameMesh
+              scene.add(playerNicknames[i])
+            }
 
             const skin = playersData[i].skin
             if(skins[skin]){
