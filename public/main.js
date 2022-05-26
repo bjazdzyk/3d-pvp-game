@@ -205,6 +205,21 @@ socket.on('joined', (skin)=>{
   orbit.update();
 
 
+  const pointerLock = new PointerLockControls( camera, document.body)
+
+  window.addEventListener( 'click', function () {
+    pointerLock.lock();
+  } );
+
+  pointerLock.addEventListener( 'lock', function () {
+  //
+  } );
+
+  pointerLock.addEventListener( 'unlock', function () {
+  //
+  } );
+
+
 
   window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
