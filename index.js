@@ -162,6 +162,7 @@ const loop = setInterval(()=>{
             const newZ = punchOffset/Math.sqrt(x*x + z*z)*z
 
 
+            io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, radius:punchRadius})
             for(let j in playersData){
               if(i!=j && playersData[j].position){
                 const dX  = Math.abs(playersData[j].position.x - (playerData.position.x+newX))
@@ -170,11 +171,12 @@ const loop = setInterval(()=>{
 
                 const d = Math.sqrt(dY*dY + Math.sqrt(dX*dX + dZ*dZ))
                 //console.log(d)
+
                 if(d < punchRadius  && playersData[j].currentAction != 'Dodge' && playersData[j].currentAction != 'DodgePunch'){
                   //io.sockets.sockets.get(j)
                   //j-ofiara i-atacker
 
-                  io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
+                  
 
                   if(playersData[j].currentAction == 'ShieldIdle'){
                     playersData[j].hp -= playersData[i].damage*(1 - shieldDamageAbsorption)
@@ -236,6 +238,8 @@ const loop = setInterval(()=>{
             io.to(i).emit('powerPunchDelay', {delay:playersData[i].powerPunchDelay})
             //console.log(io.sockets)
 
+            io.emit('pointDamage', {id:i, x:playerData.position.x, y:0, z:playerData.position.z, radius:powerPunchRadius})
+
             for(let j in playersData){
               if(i!=j && playersData[j].position){
                 const dX  = Math.abs(playersData[j].position.x - playerData.position.x)
@@ -244,11 +248,11 @@ const loop = setInterval(()=>{
 
                 const d = Math.sqrt(dY*dY + Math.sqrt(dX*dX + dZ*dZ))
                 //console.log(d)
+                
                 if(d < powerPunchRadius && playersData[j].currentAction != 'Dodge' && playersData[j].currentAction != 'DodgePunch'){
                   //io.sockets.sockets.get(j)
                   //j-ofiara i-atacker
-
-                  io.emit('pointDamage', {id:i, x:playerData.position.x, y:0, z:playerData.position.z, punchRadius})
+                  
 
                   if(playersData[j].currentAction == 'ShieldIdle'){
                     playersData[j].hp -= playerData.damage*powerPunchDamageFactor*(1 - shieldDamageAbsorption)
@@ -301,6 +305,7 @@ const loop = setInterval(()=>{
             const newX = punchOffset/Math.sqrt(x*x + z*z)*x
             const newZ = punchOffset/Math.sqrt(x*x + z*z)*z
 
+            io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, radius:punchRadius})
 
             for(let j in playersData){
               if(i!=j && playersData[j].position){
@@ -310,11 +315,10 @@ const loop = setInterval(()=>{
 
                 const d = Math.sqrt(dY*dY + Math.sqrt(dX*dX + dZ*dZ))
                 //console.log(d)
+                
                 if(d < punchRadius  && playersData[j].currentAction != 'Dodge' && playersData[j].currentAction != 'DodgePunch'){
                   //io.sockets.sockets.get(j)
                   //j-ofiara i-atacker
-
-                  io.emit('pointDamage', {id:i, x:playerData.position.x+newX, y:0, z:playerData.position.z+newZ, punchRadius})
 
                   if(playersData[j].currentAction == 'ShieldIdle'){
                     playersData[j].hp -= playersData[i].damage*(1 - shieldDamageAbsorption)

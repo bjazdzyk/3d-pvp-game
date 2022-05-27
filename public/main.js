@@ -482,14 +482,64 @@ socket.on('joined', (skin)=>{
   renderer.setAnimationLoop(animate);
 
 
-  const pointDamage = (x, y, z, radius)=>{
-    //particles etc
+  const pointDamage = (dx, dy, dz, radius)=>{
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+
+    //const sprite = new THREE.TextureLoader().load( '/assets/punchParticle.png' );
+    const sprites = [
+      new THREE.TextureLoader().load( '/assets/particle1.png' ),
+      new THREE.TextureLoader().load( '/assets/particle2.png' ),
+      new THREE.TextureLoader().load( '/assets/particle3.png' ),
+    ]
+    for(let j=0; j<3; j++){
+      for ( let i = 0; i < radius*20; i ++ ) {
+
+        const x = Math.random() - 0.5;
+        const y = Math.random() / 5;
+        const z = Math.random() - 0.5;
+
+        vertices.push( x, y, z );
+
+      }
+
+      geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+      let material = new THREE.PointsMaterial( { size: 0.5, sizeAttenuation: true, map: sprites[j], transparent:true, opacity:1 } );
+      material.color.setHSL( Math.random()*0.2+0.8, Math.random()*0.2+0.8, Math.random()*0.2+0.8 );
+
+      const particles = new THREE.Points( geometry, material );
+      particles.position.set(dx, dy, dz)
+      particles.scale.set(0.5, 0.5, 0.5)
+      material.opacity = 1
+      scene.add( particles );
+
+      const time = radius*150
+
+      let t = {s:0.5}
+      console.log(radius)
+      let sTween = new TWEEN.Tween(t)
+        .to({s:radius*3}, time)
+        .easing(TWEEN.Easing.Quartic.Out)
+        .onUpdate(()=>{
+          particles.scale.set(t.s, t.s, t.s)
+        })
+        .start()
+        .onComplete(()=>{
+          scene.remove(particles)
+        })
+
+      let opTween = new TWEEN.Tween(material)
+        .to({opacity:0.1}, time)
+        .easing(TWEEN.Easing.Quartic.InOut)
+        .start()
+    }
   }
 
 
 
   socket.on('pointDamage', (Data)=>{
-    pointDamage(Data.x, Data.y, Data.z, Data.ratius)
+    pointDamage(Data.x, Data.y, Data.z, Data.radius)
   })
 
   GM.setPPdelay(Date.now(), 1)
