@@ -427,7 +427,7 @@ socket.on('joined', (skin)=>{
   })
 
 
-  const GM = new GuiManager(200)
+  const GM = new GuiManager(skin)
 
 
   let playersData = {}
@@ -493,7 +493,7 @@ socket.on('joined', (skin)=>{
       new THREE.TextureLoader().load( '/assets/particle3.png' ),
     ]
     for(let j=0; j<3; j++){
-      for ( let i = 0; i < radius*20; i ++ ) {
+      for ( let i = 0; i < radius*15; i ++ ) {
 
         const y = Math.random() / 5;
 
@@ -513,7 +513,7 @@ socket.on('joined', (skin)=>{
       geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 
       let material = new THREE.PointsMaterial( { size: 0.5, sizeAttenuation: true, map: sprites[j], transparent:true, opacity:1 } );
-      material.color.setHSL( Math.random()*0.2+0.8, Math.random()*0.2+0.8, Math.random()*0.2+0.8 );
+      material.color.setHSL( 0.2, 1, 0.4 );
 
       const particles = new THREE.Points( geometry, material );
       particles.position.set(dx, dy, dz)
@@ -521,13 +521,13 @@ socket.on('joined', (skin)=>{
       material.opacity = 1
       scene.add( particles );
 
-      const time = radius*150
+      const time = radius*500
 
       let t = {s:0.5}
       console.log(radius)
       let sTween = new TWEEN.Tween(t)
         .to({s:radius*3}, time)
-        .easing(TWEEN.Easing.Quartic.Out)
+        .easing(TWEEN.Easing.Back.Out)
         .onUpdate(()=>{
           particles.scale.set(t.s, t.s, t.s)
         })
@@ -537,8 +537,8 @@ socket.on('joined', (skin)=>{
         })
 
       let opTween = new TWEEN.Tween(material)
-        .to({opacity:0.1}, time)
-        .easing(TWEEN.Easing.Quartic.InOut)
+        .to({opacity:0}, time)
+        .easing(TWEEN.Easing.Circular.Out)
         .start()
     }
   }

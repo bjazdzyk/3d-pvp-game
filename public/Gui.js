@@ -31,10 +31,10 @@ const ppctx = powerPunchDelay.getContext('2d')
 
 
 export class GuiManager{
-	constructor(maxHealth){
+	constructor(skin){
 		this.nickname = "Unknown"
-		this.maxHealth = maxHealth
-		this.hp = maxHealth
+		this.maxHealth = 0
+		this.hp = 0
 		playerHealthContainer.style["width"] = `${this.maxHealth + 10}px`
 		playerHealthBar.style["width"] = `${this.hp}px`
 
