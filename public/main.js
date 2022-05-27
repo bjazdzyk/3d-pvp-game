@@ -495,9 +495,16 @@ socket.on('joined', (skin)=>{
     for(let j=0; j<3; j++){
       for ( let i = 0; i < radius*20; i ++ ) {
 
-        const x = Math.random() - 0.5;
         const y = Math.random() / 5;
-        const z = Math.random() - 0.5;
+
+        const r = Math.random() /2
+        const angle = Math.random() * Math.PI * 2
+
+        const x = Math.cos(angle)*r
+        const z = Math.sin(angle)*r
+        // const x = Math.random() - 0.5;
+        // const y = Math.random() / 5;
+        // const z = Math.random() - 0.5;
 
         vertices.push( x, y, z );
 
