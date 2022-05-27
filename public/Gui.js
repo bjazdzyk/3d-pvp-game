@@ -1,6 +1,9 @@
+const iconUrls = {'Bob':"/assets/bobIcon.png", 'Tina':"/assets/tinaIcon.png"}
+
+
 //playerIcon
 const playerIcon = document.createElement("div")
-const playerIconUrl = "assets/icon.png"
+const playerIconUrl = "assets/bobIcon.png"
 playerIcon.setAttribute("id", "playerIcon")
 playerIcon.style["background-image"] = `url(${playerIconUrl})`
 
@@ -33,6 +36,8 @@ const ppctx = powerPunchDelay.getContext('2d')
 export class GuiManager{
 	constructor(skin){
 		this.nickname = "Unknown"
+		this.previousSkin = 'Bob'
+		this.playerSkin = skin
 		this.maxHealth = 0
 		this.hp = 0
 		playerHealthContainer.style["width"] = `${this.maxHealth + 10}px`
@@ -102,6 +107,10 @@ export class GuiManager{
 	    ppctx.clip();
 	    ppctx.closePath();
 	    ppctx.restore();
+	    if(this.previousSkin != this.playerSkin){
+	    	playerIcon.style["background-image"] = `url(${iconUrls[this.playerSkin]})`
+	    	this.previousSkin = this.playerSkin
+	    }
 
 	}
 	setNick(nickname){
