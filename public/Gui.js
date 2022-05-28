@@ -1,3 +1,7 @@
+Array.prototype.insert = function ( index, item ) {
+    this.splice( index, 0, item );
+};
+
 const iconUrls = {'Bob':"/assets/bobIcon.png", 'Tina':"/assets/tinaIcon.png"}
 
 
@@ -29,12 +33,18 @@ powerPunchDelay.setAttribute("id", "powerPunchDelay")
 powerPunchDelay.width = 100
 powerPunchDelay.height = 100
 
+//leaderBoard
+const leaderBoardContainer = document.createElement('div')
+leaderBoardContainer.setAttribute("id", "leaderBoardContainer")
+const leaderBoardElements = []
+
 
 const ppctx = powerPunchDelay.getContext('2d')
 
 
 export class GuiManager{
-	constructor(skin){
+	constructor(skin, socket){
+		this.socket = socket
 		this.nickname = "Unknown"
 		this.previousSkin = 'Bob'
 		this.playerSkin = skin
@@ -43,6 +53,8 @@ export class GuiManager{
 		playerHealthContainer.style["width"] = `${this.maxHealth + 10}px`
 		playerHealthBar.style["width"] = `${this.hp}px`
 
+		this.leaderBoard = {}
+		this.updateLeaderBoard = false
 
 		this.PPdelay = 1000
 
@@ -50,6 +62,7 @@ export class GuiManager{
 		document.body.appendChild(playerNickname)
 		document.body.appendChild(playerHealthContainer)
 		document.body.appendChild(powerPunchDelay)
+		document.body.appendChild(leaderBoardContainer)
 	}
 
 	setMaxHp(value){
@@ -110,6 +123,53 @@ export class GuiManager{
 	    if(this.previousSkin != this.playerSkin){
 	    	playerIcon.style["background-image"] = `url(${iconUrls[this.playerSkin]})`
 	    	this.previousSkin = this.playerSkin
+	    }
+	    if(this.updateLeaderBoard){
+	    	this.updateLeaderBoard = false
+
+	    	let leaderBoardArray = [[null, -1]]
+
+	    	for(let i in this.leaderBoard){
+	    		for(let j=0; j<leaderBoardArray.length; j++){
+	    			if(this.leaderBoard[i]){
+		    			if(this.leaderBoard[i][1]>leaderBoardArray[j][1]){
+		    				leaderBoardArray.insert(j, this.leaderBoard[i])
+		    				j = leaderBoardArray.length
+		    			}
+	    			}
+	    		}
+	    	}
+	    	console.log(leaderBoardArray)
+	    	console.log(leaderBoardArray.length-1, leaderBoardElements.length)
+	    	for(let i=0; i<Math.max(leaderBoardArray.length-1, leaderBoardElements.length); i++){
+	    		if(leaderBoardArray[i] && leaderBoardArray[i][0]){
+	    			if(leaderBoardElements[i]){
+	    				leaderBoardElements[i].children[0].innerHTML = `${leaderBoardArray[i][0]}`
+	    				leaderBoardElements[i].children[1].innerHTML = `${leaderBoardArray[i][1]}`
+	    			}else{
+	    				leaderBoardElements.push(document.createElement("div"))
+	    				leaderBoardElements[i].setAttribute("class", "leaderBoardSpot")
+	    				
+	    				const nick = document.createElement("div")
+	    				nick.setAttribute("class", "leaderBoardNick")
+	    				nick.innerHTML = `${leaderBoardArray[i][0]}`
+
+	    				const kills = document.createElement("div")
+	    				kills.setAttribute("class", "leaderBoardKills")
+	    				kills.innerHTML = `<b>${leaderBoardArray[i][1]}</b>`
+
+	    				leaderBoardElements[i].appendChild(nick)
+	    				leaderBoardElements[i].appendChild(kills)
+	    				leaderBoardContainer.appendChild(leaderBoardElements[i])
+	    			}
+	    		}else{
+	    			console.log(leaderBoardElements[i])
+	    			leaderBoardElements[i].remove()
+	    		}
+	    	}
+
+
+
 	    }
 
 	}

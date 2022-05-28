@@ -450,7 +450,7 @@ socket.on('joined', (skin)=>{
   })
 
 
-  const GM = new GuiManager(skin)
+  const GM = new GuiManager(skin, socket)
 
 
   let playersData = {}
@@ -574,14 +574,21 @@ socket.on('joined', (skin)=>{
     pointDamage(Data.x, Data.y, Data.z, Data.radius)
   })
 
+  socket.on('leaderBoard', (LB)=>{
+    GM.leaderBoard = LB
+    GM.updateLeaderBoard = true
+  })
+
   GM.setPPdelay(Date.now(), 1)
   socket.on('powerPunchDelay', (Data)=>{
     const delay = Data.delay
     GM.setPPdelay(Date.now(), delay)
   })
 
-
+  //let last = Date.now()
   socket.on("Data", (Data, movement=false)=>{
+    //console.log(Date.now()-last)
+    //last = Date.now()
 
     
     playersData = Data[0]

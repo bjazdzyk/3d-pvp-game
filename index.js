@@ -24,6 +24,8 @@ app.use(express.static('public'));
 
 const playersData = {}
 
+const leaderBoard = {}
+
 const arenaSize = 45
 const arenaCollisionOffset = 1
 const punchOffset = 2
@@ -40,7 +42,9 @@ io.on('connection', (socket) => {
     const skin = Data.skin
     console.log(`${nick} joined the game`)
 
+
     playersData[socket.id] = {
+      id:socket.id,
       nick:nick,
       skin:skin,
       keys:{},
@@ -68,6 +72,9 @@ io.on('connection', (socket) => {
     socket.emit('joined', playersData[socket.id].skin)
     socket.emit('arenaSize', arenaSize)
     socket.emit('powerPunchDelay', {delay:1})
+
+    leaderBoard[socket.id] = [nick, 0]//0 kills
+    io.emit("leaderBoard", leaderBoard)
 
 
     socket.on('requestUpdate', (Data)=>{
@@ -108,7 +115,12 @@ io.on('connection', (socket) => {
   
 
   socket.on('disconnect', () => {
-    playersData[socket.id] = "disconnected"
+    if(playersData[socket.id] && playersData[socket.id]!="disconnected"){
+      console.log(`${playersData[socket.id].nick} left the game`)
+      playersData[socket.id] = "disconnected"
+      leaderBoard[socket.id] = null
+      io.emit("leaderBoard", leaderBoard)
+    }
   });
 });
 
@@ -187,10 +199,16 @@ const loop = setInterval(()=>{
                     
                   }
 
-                  if(playersData[j].hp<=0){
+                  if(playersData[j].hp<=0 && playersData[j].alive){
                     playersData[j].alive = false
                     playersData[j].hp = 0
                     playersData[j].currentAction = "Death"
+
+                    console.log(`${playersData[j].nick} was slain by ${playersData[i].nick}`)
+
+                    leaderBoard[playersData[i].id][1]++
+                    leaderBoard[playersData[j].id][1] = 0
+                    io.emit("leaderBoard", leaderBoard)
                   }
                   io.emit("Data", [playersData])
                 }
@@ -261,10 +279,16 @@ const loop = setInterval(()=>{
                     playersData[j].hp -= playersData[i].damage*powerPunchDamageFactor
                     playersData[j].powerPunchedTimeStamp = Date.now()
                   }
-                  if(playersData[j].hp<=0){
+                  if(playersData[j].hp<=0 && playersData[j].alive){
                     playersData[j].hp = 0
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
+
+                    console.log(`${playersData[j].nick} was slain by ${playersData[i].nick}`)
+
+                    leaderBoard[playersData[i].id][1]++
+                    leaderBoard[playersData[j].id][1] = 0
+                    io.emit("leaderBoard", leaderBoard)
                   }
                   io.emit("Data", [playersData])
                 }
@@ -329,10 +353,16 @@ const loop = setInterval(()=>{
                     
                   }
 
-                  if(playersData[j].hp<=0){
+                  if(playersData[j].hp<=0 && playersData[j].alive){
                     playersData[j].hp = 0
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
+                    
+                    console.log(`${playersData[j].nick} was slain by ${playersData[i].nick}`)
+
+                    leaderBoard[playersData[i].id][1]++
+                    leaderBoard[playersData[j].id][1] = 0
+                    io.emit("leaderBoard", leaderBoard)
                   }
                   io.emit("Data", [playersData])
                 }

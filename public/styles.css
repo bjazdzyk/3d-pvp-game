@@ -124,3 +124,29 @@ canvas{
 	background-color: green;
 	cursor: pointer;
 }
+#leaderBoardContainer{
+	z-index: 4;
+	position: fixed;
+	right: 10px;
+	top: 10px;
+	width: 200px;
+	min-height: 500px;
+}
+.leaderBoardSpot{
+	position: relative;
+	width: 90%;
+	height: 16px;
+	margin-left: 5%;
+	margin-top: 4px;
+	background-color: royalblue ;
+	opacity: 0.75;
+	border-radius: 5px;
+}
+.leaderBoardNick{
+	position: absolute;
+	left: 5px;
+}
+.leaderBoardKills{
+	position: absolute;
+	right: 5px;
+}
