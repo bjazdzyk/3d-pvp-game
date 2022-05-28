@@ -106,16 +106,17 @@ socket.on('con', ()=>{
 
   for(let i in skinNames){
     assetLoader.load(modelUrls[skinNames[i]], function(gltf) {
+      gltf.scene.traverse(c =>{
+        c.castShadow = true
+      })
+
       lobbyPlayerModels[skinNames[i]] = gltf.scene;
       lobbyPlayerModels[skinNames[i]].position.x = (i-1)*-5
       lobbyPlayerModels[skinNames[i]].position.z = (i-1)*5
       scene.add(lobbyPlayerModels[skinNames[i]]);
       lobbyPlayerMixers[skinNames[i]] = new THREE.AnimationMixer(lobbyPlayerModels[skinNames[i]]);
       actions[skinNames[i]] = {}
-      gltf.scene.traverse(c =>{
-        c.castShadow = true
-      })
-
+      
       clips[skinNames[i]] = gltf.animations
       for(let j=0; j<clips[skinNames[i]].length; j++){
         const clip = clips[skinNames[i]][j]
@@ -196,10 +197,10 @@ socket.on('joined', (skin)=>{
   camera.position.set(100, 90, 100);
 
   const orbit = new OrbitControls(camera, renderer.domElement);
-  orbit.minDistance = 5
+  orbit.minDistance = 10
   orbit.maxDistance = 12
   orbit.enablePan = false
-  orbit.minPolarAngle = Math.PI / 4
+  orbit.minPolarAngle = Math.PI / 6
   orbit.maxPolarAngle = Math.PI / 2
   orbit.enableZoom = false
   orbit.update();
@@ -240,11 +241,12 @@ socket.on('joined', (skin)=>{
   planeTexture.offset.set( 0, 0 );
   planeTexture.repeat.set( 500, 500 );
   const planeGeometry = new THREE.PlaneGeometry( 1000, 1000 )
-  const planeMaterial = new THREE.MeshBasicMaterial({
+  const planeMaterial = new THREE.MeshStandardMaterial({
     map: planeTexture,
   });
   const plane = new THREE.Mesh( planeGeometry, planeMaterial )
   plane.rotation.x = -Math.PI/2
+  plane.receiveShadow = true
   scene.add( plane );
 
 
@@ -257,13 +259,31 @@ socket.on('joined', (skin)=>{
 
 
   //light
-  const dirLight = new THREE.DirectionalLight()
-  dirLight.position.set(0, 10, 0)
+  const dirLight = new THREE.DirectionalLight(0xffffff, 5)
+  dirLight.position.set(20, 50, 20)
   dirLight.target.position.set(0, 0, 0)
+  dirLight.castShadow = true
+  dirLight.scale.set(20, 20, 20)
+  var side = 50;
+  dirLight.shadow.camera.top = side;
+  dirLight.shadow.camera.bottom = -side;
+  dirLight.shadow.camera.left = side;
+  dirLight.shadow.camera.right = -side;
+  dirLight.shadow.bias = -0.0001
+  dirLight.shadowMapWidth = 1024 * 2;
+  dirLight.shadowMapHeight = 1024 * 2;
+
   scene.add(dirLight)
   scene.add(dirLight.target)
-  const ambientLight = new THREE.AmbientLight(0xFFFFFF)
+
+
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 2)
   scene.add(ambientLight)
+
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
+  renderer.shadowMap.enabled = true
+  renderer.toneMapping = THREE.ReinhardToneMapping
+  renderer.toneMappingExposure = 0.5
 
 
 
@@ -307,6 +327,10 @@ socket.on('joined', (skin)=>{
 
   for(let i in skinNames){
     assetLoader.load(modelUrls[skinNames[i]], function(gltf) {
+      gltf.scene.children[0].traverse(c =>{
+        c.castShadow = true
+      })
+
 
       skins[skinNames[i]] = gltf.scene;
       clips[skinNames[i]] = gltf.animations
@@ -331,10 +355,6 @@ socket.on('joined', (skin)=>{
         Bob.characterControls.sendData(socket, keys)
       }
 
-      skins[skinNames[i]].traverse(c =>{
-        c.castShadow = true
-      })
-
     }, undefined, function(error) {
         console.error(error);
     });
@@ -355,7 +375,7 @@ socket.on('joined', (skin)=>{
     arenaSize = size
 
     assetLoader.load('/assets/fence.glb', function(gltf) {
-      gltf.scene.traverse(c =>{
+      gltf.scene.children[0].traverse(c =>{
         c.castShadow = true
       })
       fenceModel = gltf.scene
@@ -390,6 +410,9 @@ socket.on('joined', (skin)=>{
     
 
     assetLoader.load('/assets/tree.glb', (gltf)=>{
+      gltf.scene.traverse(c =>{
+        c.castShadow = true
+      })
       treeModel = gltf.scene
 
 
@@ -477,6 +500,8 @@ socket.on('joined', (skin)=>{
     }
     GM.update(Date.now())
   	renderer.render(scene, camera);
+
+
   }
 
   renderer.setAnimationLoop(animate);
