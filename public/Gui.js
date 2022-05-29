@@ -204,7 +204,7 @@ export class GuiManager{
 	    		if(leaderBoardArray[i] && leaderBoardArray[i][0]){
 	    			if(leaderBoardElements[i]){
 	    				leaderBoardElements[i].children[0].innerHTML = `${leaderBoardArray[i][0]}`
-	    				leaderBoardElements[i].children[1].innerHTML = `${leaderBoardArray[i][1]}`
+	    				leaderBoardElements[i].children[1].innerHTML = `<b>${leaderBoardArray[i][1]}</b>`
 	    			}else{
 	    				leaderBoardElements.push(document.createElement("div"))
 	    				leaderBoardElements[i].setAttribute("class", "leaderBoardSpot")

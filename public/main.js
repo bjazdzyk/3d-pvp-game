@@ -715,7 +715,28 @@ socket.on('joined', (skin)=>{
       }else{
         if(playerModels[i]){
           playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
-          playerNicknames[i].position.set(playersData[i].position.x, playersData[i].position.y+3, playersData[i].position.z)
+
+          const startX = playerModels[i].position.x
+          const startY = playerModels[i].position.y
+          const startZ = playerModels[i].position.z
+
+          const x = playersData[i].position.x
+          const y = playersData[i].position.y
+          const z = playersData[i].position.z
+          
+          const coords = {x:startX, y:startY, z:startZ}
+          const endCoords = {x:x, y:y, z:z}
+
+          let tween = new TWEEN.Tween(coords)
+            .to(endCoords, 100)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(()=>{
+              playerModels[i].position.set(coords.x, coords.y, coords.z)
+              playerNicknames[i].position.set(coords.x, coords.y+3, coords.z)
+            })
+            .start()
+
+          
           const rotation = playersData[i].rotation
           if(rotation){
             playerModels[i].rotation.x = playersData[i].rotation.x
