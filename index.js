@@ -80,10 +80,13 @@ io.on('connection', (socket) => {
     io.emit("leaderBoard", leaderBoard)
 
     socket.on('healMe', ()=>{
-      if(Date.now() - playersData[socket.id].healTimeStamp > playersData[socket.id].healDelay){
-        playersData[socket.id].healTimeStamp = Date.now()
-        playersData[socket.id].hp = playersData[socket.id].maxHp
-        io.to(socket.id).emit('healDelay', {delay:playersData[socket.id].healDelay})
+      if(playersData[socket.id].alive){
+        if(Date.now() - playersData[socket.id].healTimeStamp > playersData[socket.id].healDelay){
+          playersData[socket.id].healTimeStamp = Date.now()
+          playersData[socket.id].hp = playersData[socket.id].maxHp
+          io.to(socket.id).emit('healDelay', {delay:playersData[socket.id].healDelay})
+          io.emit('healCloud', {x:playersData[socket.id].position.x, y:playersData[socket.id].position.y + 2, z:playersData[socket.id].position.z})
+        }
       }
     })
     socket.on('requestUpdate', (Data)=>{

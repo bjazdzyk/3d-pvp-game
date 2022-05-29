@@ -283,7 +283,7 @@ socket.on('joined', (skin)=>{
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
   renderer.shadowMap.enabled = true
   renderer.toneMapping = THREE.ReinhardToneMapping
-  renderer.toneMappingExposure = 0.5
+  //renderer.toneMappingExposure = 1
 
 
 
@@ -581,13 +581,69 @@ socket.on('joined', (skin)=>{
 
   GM.setPPdelay(Date.now(), 1)
   GM.setHdelay(Date.now(), 1)
+
   socket.on('powerPunchDelay', (Data)=>{
     const delay = Data.delay
     GM.setPPdelay(Date.now(), delay)
   })
+
+
   socket.on('healDelay', (Data)=>{
     const delay = Data.delay
     GM.setHdelay(Date.now(), delay)
+  })
+
+
+  socket.on('healCloud', (Pos)=>{
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+    const sprite = new THREE.TextureLoader().load( '/assets/healParticle.png' )
+    for ( let i = 0; i < 40; i ++ ) {
+
+        const y = Math.random() -0.5;
+
+        const r = Math.random() /2
+        const angle = Math.random() * Math.PI * 2
+
+        const x = Math.cos(angle)*r
+        const z = Math.sin(angle)*r
+        // const x = Math.random() - 0.5;
+        // const y = Math.random() / 5;
+        // const z = Math.random() - 0.5;
+
+        vertices.push( x, y, z );
+
+      }
+
+      geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+      let material = new THREE.PointsMaterial( { size: 0.5, sizeAttenuation: true, map: sprite, transparent:true, opacity:1 } );
+      //material.color.setHSL(1, 2, 1);
+
+      const particles = new THREE.Points( geometry, material );
+      particles.position.set(Pos.x, Pos.y, Pos.z)
+      particles.scale.set(0.5, 0.5, 0.5)
+      material.opacity = 1
+      scene.add( particles );
+
+      const time = 750
+
+      let t = {s:0.5}
+      let sTween = new TWEEN.Tween(t)
+        .to({s:4}, time)
+        .easing(TWEEN.Easing.Back.Out)
+        .onUpdate(()=>{
+          particles.scale.set(t.s, t.s, t.s)
+        })
+        .start()
+        .onComplete(()=>{
+          scene.remove(particles)
+        })
+
+      let opTween = new TWEEN.Tween(material)
+        .to({opacity:0}, time)
+        .easing(TWEEN.Easing.Circular.Out)
+        .start()
   })
 
   //let last = Date.now()
@@ -607,7 +663,7 @@ socket.on('joined', (skin)=>{
 
     }
     if(playersData[socket.id].hp != GM.hp){
-      GM.setHp(playersData[socket.id].hp, GM.maxHealth)
+      GM.setHp(playersData[socket.id].hp)
     }
 
 
