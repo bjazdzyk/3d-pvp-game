@@ -583,6 +583,7 @@ socket.on('joined', (skin)=>{
   GM.setHdelay(Date.now(), 1)
 
   socket.on('powerPunchDelay', (Data)=>{
+    console.log("lul")
     const delay = Data.delay
     GM.setPPdelay(Date.now(), delay)
   })
@@ -714,7 +715,7 @@ socket.on('joined', (skin)=>{
         }
       }else{
         if(playerModels[i]){
-          playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
+          //playerModels[i].position.set(playersData[i].position.x, playersData[i].position.y, playersData[i].position.z)
 
           const startX = playerModels[i].position.x
           const startY = playerModels[i].position.y
@@ -731,8 +732,10 @@ socket.on('joined', (skin)=>{
             .to(endCoords, 100)
             .easing(TWEEN.Easing.Quadratic.Out)
             .onUpdate(()=>{
-              playerModels[i].position.set(coords.x, coords.y, coords.z)
-              playerNicknames[i].position.set(coords.x, coords.y+3, coords.z)
+              if(playerModels[i]){
+                playerModels[i].position.set(coords.x, coords.y, coords.z)
+                playerNicknames[i].position.set(coords.x, coords.y+3, coords.z)
+              }
             })
             .start()
 
