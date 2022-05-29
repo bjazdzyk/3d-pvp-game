@@ -33,13 +33,23 @@ powerPunchDelay.setAttribute("id", "powerPunchDelay")
 powerPunchDelay.width = 100
 powerPunchDelay.height = 100
 
+const ppctx = powerPunchDelay.getContext('2d')
+
+//healDelay
+const healDelay = document.createElement('canvas')
+healDelay.setAttribute("id", "healDelay")
+healDelay.width = 100
+healDelay.height = 100
+
+const hctx = healDelay.getContext('2d')
+
 //leaderBoard
 const leaderBoardContainer = document.createElement('div')
 leaderBoardContainer.setAttribute("id", "leaderBoardContainer")
 const leaderBoardElements = []
 
 
-const ppctx = powerPunchDelay.getContext('2d')
+
 
 
 export class GuiManager{
@@ -56,12 +66,16 @@ export class GuiManager{
 		this.leaderBoard = {}
 		this.updateLeaderBoard = false
 
+		this.PPtimeStamp = 0
+		this.HtimeStamp = 0
 		this.PPdelay = 1000
+		this.Hdelay = 1000
 
 		document.body.appendChild(playerIcon)
 		document.body.appendChild(playerNickname)
 		document.body.appendChild(playerHealthContainer)
 		document.body.appendChild(powerPunchDelay)
+		document.body.appendChild(healDelay)
 		document.body.appendChild(leaderBoardContainer)
 	}
 
@@ -80,8 +94,12 @@ export class GuiManager{
 		this.PPtimeStamp = now
 		this.PPdelay = delay
 	}
+	setHdelay(now, delay){
+		this.HtimeStamp = now
+		this.Hdelay = delay
+	}
 	update(now){
-
+		//power punch delay
 		ppctx.clearRect(0, 0, 100, 100)
 		ppctx.save();
 	    ppctx.beginPath();
@@ -101,8 +119,6 @@ export class GuiManager{
 	    ppctx.closePath();
 	    ppctx.restore();
 
-
-
 		ppctx.save();
 	    ppctx.beginPath();
 	    ppctx.moveTo(50, 50)
@@ -120,6 +136,49 @@ export class GuiManager{
 	    ppctx.clip();
 	    ppctx.closePath();
 	    ppctx.restore();
+
+
+	    //heal delay
+	    hctx.clearRect(0, 0, 100, 100)
+		hctx.save();
+	    hctx.beginPath();
+	    hctx.moveTo(50, 50)
+	    hctx.arc(50, 50, 40, 0, 2*Math.PI);
+	    hctx.closePath();
+	    hctx.clip()
+
+	    const HimageTR = new Image()
+		HimageTR.src = "assets/healIconTR.png"
+	    hctx.drawImage(HimageTR, 10, 10, 80, 80)
+
+	    hctx.beginPath();
+	    hctx.moveTo(50, 50)
+	    hctx.arc(50, 50, 40, 0, 2*Math.PI);
+	    hctx.clip();
+	    hctx.closePath();
+	    hctx.restore();
+
+		hctx.save();
+	    hctx.beginPath();
+	    hctx.moveTo(50, 50)
+	    hctx.arc(50, 50, 40, 1.5*Math.PI, (2*((now - this.HtimeStamp)/this.Hdelay)+1.5)*Math.PI);
+	    hctx.closePath();
+	    hctx.clip()
+
+	    const Himage = new Image()
+		Himage.src = "assets/healIcon.png"
+	    hctx.drawImage(Himage, 10, 10, 80, 80)
+
+	    hctx.beginPath();
+	    hctx.moveTo(50, 50)
+	    hctx.arc(50, 50, 40, 1.5*Math.PI, (2*((now - this.HtimeStamp)/this.Hdelay)+1.5)*Math.PI);
+	    hctx.clip();
+	    hctx.closePath();
+	    hctx.restore();
+
+
+
+
 	    if(this.previousSkin != this.playerSkin){
 	    	playerIcon.style["background-image"] = `url(${iconUrls[this.playerSkin]})`
 	    	this.previousSkin = this.playerSkin

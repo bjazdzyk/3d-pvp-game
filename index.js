@@ -66,17 +66,26 @@ io.on('connection', (socket) => {
       dodgeTimeStamp:0,
       powerPunch: false, 
       dodgePunch: false,
-      powerPunchDelay:9000
+      powerPunchDelay:9000,
+      healDelay:15000,
+      healTimeStamp:0
     }
 
     socket.emit('joined', playersData[socket.id].skin)
     socket.emit('arenaSize', arenaSize)
     socket.emit('powerPunchDelay', {delay:1})
+    socket.emit('healDelay', {delay:1})
 
     leaderBoard[socket.id] = [nick, 0]//0 kills
     io.emit("leaderBoard", leaderBoard)
 
-
+    socket.on('healMe', ()=>{
+      if(Date.now() - playersData[socket.id].healTimeStamp > playersData[socket.id].healDelay){
+        playersData[socket.id].healTimeStamp = Date.now()
+        playersData[socket.id].hp = playersData[socket.id].maxHp
+        io.to(socket.id).emit('healDelay', {delay:playersData[socket.id].healDelay})
+      }
+    })
     socket.on('requestUpdate', (Data)=>{
       if(playersData[socket.id].alive){
         const keys = Data[0]

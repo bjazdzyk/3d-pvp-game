@@ -580,9 +580,14 @@ socket.on('joined', (skin)=>{
   })
 
   GM.setPPdelay(Date.now(), 1)
+  GM.setHdelay(Date.now(), 1)
   socket.on('powerPunchDelay', (Data)=>{
     const delay = Data.delay
     GM.setPPdelay(Date.now(), delay)
+  })
+  socket.on('healDelay', (Data)=>{
+    const delay = Data.delay
+    GM.setHdelay(Date.now(), delay)
   })
 
   //let last = Date.now()
@@ -748,11 +753,14 @@ socket.on('joined', (skin)=>{
   const keys = {}
 
   document.addEventListener("keydown", e =>{
+    if(e.code == "KeyQ"){
+      socket.emit('healMe')
+    }
   	keys[e.code] = true
   })
   document.addEventListener("keyup", e =>{
   	keys[e.code] = null
-    if(characterControls){
+    if(Bob.characterControls){
       Bob.characterControls.sendData(socket, keys)
     }
   })

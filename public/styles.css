@@ -53,6 +53,13 @@ canvas{
 	right: 30px;
 	bottom: 10px;
 }
+#healDelay{
+	display: block;
+	position: fixed;
+	z-index: 3;
+	right: 130px;
+	bottom: 10px;
+}
 #joinContainer{
 	position: absolute;
 	left: calc(50vw - 100px);
