@@ -145,7 +145,7 @@ canvas{
 	height: 16px;
 	margin-left: 5%;
 	margin-top: 4px;
-	background-color: royalblue ;
+	background-color: darkcyan ;
 	opacity: 0.75;
 	border-radius: 5px;
 }
@@ -156,4 +156,35 @@ canvas{
 .leaderBoardKills{
 	position: absolute;
 	right: 5px;
+}
+
+#deathScreen{
+	display: none;
+	z-index: 4;
+	width: 100vw;
+	position: fixed;
+	height: 40vh;
+	top: 30vh;
+	background-color: darkcyan;
+	opacity: 0.5;
+}
+
+#reJoinButton{
+	margin-bottom: 5px;
+	bottom: 30vh;
+	z-index: 5;
+	position: fixed;
+	width: 200px;
+	height: 15px;
+	background-color: green;
+	color: white;
+	font: 15px sans-serif;
+	left: calc(50vw - 110px);
+	text-align: center;
+	padding: 10px;
+	border-radius: 5px;
+}
+#reJoinButton:hover{
+	background-color: darkgreen;
+	cursor: pointer;
 }

@@ -34,13 +34,11 @@ renderer.setClearColor("skyblue");
 
 document.body.appendChild(renderer.domElement);
 
-let connectionState = 'none'
 
 const skinNames = {1:'Bob', 2:'Tina'}
 const modelUrls = {'Bob':'/assets/Wojownik.glb', 'Tina':'/assets/Girl.glb'}
 
 socket.on('con', ()=>{
-  connectionState = 'lobby'
   const scene = new THREE.Scene()
 
   const camera = new THREE.PerspectiveCamera(
@@ -184,7 +182,8 @@ socket.on('con', ()=>{
 
 
 socket.on('joined', (skin)=>{
-  connectionState = 'game'
+  const GM = new GuiManager(skin, socket)
+  GM.connectionState = 'game'
 
   const scene = new THREE.Scene();
 
@@ -209,7 +208,9 @@ socket.on('joined', (skin)=>{
   const pointerLock = new PointerLockControls( camera, document.body)
 
   window.addEventListener( 'click', function () {
-    pointerLock.lock();
+    if(GM.connectionState == 'game'){
+      pointerLock.lock();
+    }
   } );
 
   pointerLock.addEventListener( 'lock', function () {
@@ -450,7 +451,7 @@ socket.on('joined', (skin)=>{
   })
 
 
-  const GM = new GuiManager(skin, socket)
+  
 
 
   let playersData = {}
@@ -549,7 +550,6 @@ socket.on('joined', (skin)=>{
       const time = radius*500
 
       let t = {s:0.5}
-      console.log(radius)
       let sTween = new TWEEN.Tween(t)
         .to({s:radius*3}, time)
         .easing(TWEEN.Easing.Back.Out)
@@ -583,7 +583,6 @@ socket.on('joined', (skin)=>{
   GM.setHdelay(Date.now(), 1)
 
   socket.on('powerPunchDelay', (Data)=>{
-    console.log("lul")
     const delay = Data.delay
     GM.setPPdelay(Date.now(), delay)
   })
@@ -654,6 +653,15 @@ socket.on('joined', (skin)=>{
 
     
     playersData = Data[0]
+    //console.log(Date.now() - playersData[socket.id].deathTimeStamp )
+    if(!playersData[socket.id].alive){
+      if(Date.now() - playersData[socket.id].deathTimeStamp < 3000){
+        GM.connectionState = "death"
+      }
+
+    }else{
+      GM.connectionState = "game"
+    }
 
     if(playersData[socket.id].nick != GM.nickname){
       GM.setNick(playersData[socket.id].nick)
@@ -856,8 +864,11 @@ socket.on('joined', (skin)=>{
 
 
   document.addEventListener('mousemove', e =>{
-    camera.translateX(e.movementX/-15)
-    camera.translateY(e.movementY/20)
-    orbit.update()
+    if(GM.connectionState == "game"){
+      camera.translateX(e.movementX/-15)
+      camera.translateY(e.movementY/20)
+      orbit.update()
+    }
+    
   })
 })

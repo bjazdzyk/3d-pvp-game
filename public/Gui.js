@@ -48,6 +48,18 @@ const leaderBoardContainer = document.createElement('div')
 leaderBoardContainer.setAttribute("id", "leaderBoardContainer")
 const leaderBoardElements = []
 
+//deathScreen
+const deathScreen = document.createElement('div')
+deathScreen.setAttribute("id", "deathScreen")
+
+const reJoinButton = document.createElement('div')
+reJoinButton.setAttribute("id", "reJoinButton")
+
+const deathScreenDisplayer = document.createElement('div')
+deathScreenDisplayer.setAttribute("id", "deathScreenDisplayer")
+
+
+
 
 
 
@@ -70,6 +82,8 @@ export class GuiManager{
 		this.HtimeStamp = 0
 		this.PPdelay = 1000
 		this.Hdelay = 1000
+		this.previousConnectionState = "lobby"
+		this.connectionState = "lobby"
 
 		document.body.appendChild(playerIcon)
 		document.body.appendChild(playerNickname)
@@ -77,6 +91,16 @@ export class GuiManager{
 		document.body.appendChild(powerPunchDelay)
 		document.body.appendChild(healDelay)
 		document.body.appendChild(leaderBoardContainer)
+		document.body.appendChild(deathScreen)
+		document.body.appendChild(reJoinButton)
+
+		reJoinButton.addEventListener('click', (e)=>{
+			console.log(reJoinButton.innerHTML)
+			if(reJoinButton.innerHTML == "JOIN"){
+				
+				this.socket.emit('reJoin', {nick:this.nickname, skin:this.skin})
+			}
+		})
 	}
 
 	setMaxHp(value){
@@ -198,8 +222,8 @@ export class GuiManager{
 	    			}
 	    		}
 	    	}
-	    	console.log(leaderBoardArray)
-	    	console.log(leaderBoardArray.length-1, leaderBoardElements.length)
+	    	// console.log(leaderBoardArray)
+	    	// console.log(leaderBoardArray.length-1, leaderBoardElements.length)
 	    	for(let i=0; i<Math.max(leaderBoardArray.length-1, leaderBoardElements.length); i++){
 	    		if(leaderBoardArray[i] && leaderBoardArray[i][0]){
 	    			if(leaderBoardElements[i]){
@@ -222,7 +246,7 @@ export class GuiManager{
 	    				leaderBoardContainer.appendChild(leaderBoardElements[i])
 	    			}
 	    		}else{
-	    			console.log(leaderBoardElements[i])
+	    			//console.log(leaderBoardElements[i])
 	    			leaderBoardElements[i].remove()
 	    		}
 	    	}
@@ -230,6 +254,30 @@ export class GuiManager{
 
 
 	    }
+
+	    if(this.connectionState == 'death'){
+	    	deathScreen.style["display"] = "block"
+	    	reJoinButton.style["display"] = "block"
+	    	if(this.previousConnectionState != "death"){
+	    		this.previousConnectionState = "death"
+	    		this.deathTimeStamp = Date.now()
+	    	}
+
+	    	let reJoinButtonValue = Math.floor(Math.max(0, this.deathTimeStamp + 6000 - Date.now())/1000)
+	    	if(reJoinButtonValue == 0){
+	    		reJoinButtonValue = "JOIN"
+	    	}else{
+	    		reJoinButtonValue = `${reJoinButtonValue}`
+	    	}
+	    	reJoinButton.innerHTML = reJoinButtonValue
+
+	    }else{
+		    deathScreen.style["display"] = "none"
+		    reJoinButton.style["display"] = "none"
+		    this.previousConnectionState = this.connectionState
+		    
+	    }
+
 
 	}
 	setNick(nickname){

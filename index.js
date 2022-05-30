@@ -68,7 +68,8 @@ io.on('connection', (socket) => {
       dodgePunch: false,
       powerPunchDelay:9000,
       healDelay:15000,
-      healTimeStamp:0
+      healTimeStamp:0,
+      deathTimeStamp:0
     }
 
     socket.emit('joined', playersData[socket.id].skin)
@@ -123,8 +124,41 @@ io.on('connection', (socket) => {
       //io.emit("Data", [playersData])
       
     })
+    socket.on('reJoin', ()=>{
+      playersData[socket.id] = {
+        id:socket.id,
+        nick:nick,
+        skin:skin,
+        keys:{},
+        currentAction:"Idle",
+        position:{x:0, y:0, z:0}, 
+        walkDirection:{x:0, y:0, z:-1}, 
+        velocity:{'Run':0.2, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
+        maxHp:200, 
+        hp:200, 
+        lockAction:false, 
+        damage: 40, 
+        alive:true, 
+        punchTimeStamp:0, 
+        shieldTimeStamp:0, 
+        jumpTimeStamp:0, 
+        punchedTimeStamp:0, 
+        powerPunchedTimeStamp:0, 
+        powerPunchTimeStamp:0, 
+        dodgeTimeStamp:0,
+        powerPunch: false, 
+        dodgePunch: false,
+        powerPunchDelay:9000,
+        healDelay:15000,
+        healTimeStamp:0,
+        deathTimeStamp:0
+      }
+      io.emit("Data", [playersData])
+    })
   })
-  
+
+
+
 
   socket.on('disconnect', () => {
     if(playersData[socket.id] && playersData[socket.id]!="disconnected"){
@@ -215,6 +249,7 @@ const loop = setInterval(()=>{
                     playersData[j].alive = false
                     playersData[j].hp = 0
                     playersData[j].currentAction = "Death"
+                    playersData[j].deathTimeStamp = Date.now()
 
                     console.log(`${playersData[j].nick} was slain by ${playersData[i].nick}`)
 
@@ -295,6 +330,7 @@ const loop = setInterval(()=>{
                     playersData[j].hp = 0
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
+                    playersData[j].deathTimeStamp = Date.now()
 
                     console.log(`${playersData[j].nick} was slain by ${playersData[i].nick}`)
 
@@ -369,6 +405,7 @@ const loop = setInterval(()=>{
                     playersData[j].hp = 0
                     playersData[j].alive = false
                     playersData[j].currentAction = "Death"
+                    playersData[j].deathTimeStamp = Date.now()
                     
                     console.log(`${playersData[j].nick} was slain by ${playersData[i].nick}`)
 
