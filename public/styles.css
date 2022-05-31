@@ -163,15 +163,24 @@ canvas{
 	z-index: 4;
 	width: 100vw;
 	position: fixed;
-	height: 40vh;
-	top: 30vh;
+	height: 60vh;
+	top: 20vh;
 	background-color: darkcyan;
 	opacity: 0.5;
+}
+#deathTextContainer{
+	position: fixed;
+	font: 30px sans-serif;
+	top: 20vh;
+	display: none;
+	z-index: 7;
+	text-align: center;
+	width: 100vw;
 }
 
 #reJoinButton{
 	margin-bottom: 5px;
-	bottom: 30vh;
+	bottom: 20vh;
 	z-index: 5;
 	position: fixed;
 	width: 200px;

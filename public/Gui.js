@@ -52,12 +52,13 @@ const leaderBoardElements = []
 const deathScreen = document.createElement('div')
 deathScreen.setAttribute("id", "deathScreen")
 
+const deathTexts = document.createElement('div')
+deathTexts.setAttribute("id", "deathTextContainer")
+deathTexts.innerHTML = "<h1>YOU DIED</h1></br>click button to respawn"
+
+
 const reJoinButton = document.createElement('div')
 reJoinButton.setAttribute("id", "reJoinButton")
-
-const deathScreenDisplayer = document.createElement('div')
-deathScreenDisplayer.setAttribute("id", "deathScreenDisplayer")
-
 
 
 
@@ -92,6 +93,7 @@ export class GuiManager{
 		document.body.appendChild(healDelay)
 		document.body.appendChild(leaderBoardContainer)
 		document.body.appendChild(deathScreen)
+		document.body.appendChild(deathTexts)
 		document.body.appendChild(reJoinButton)
 
 		reJoinButton.addEventListener('click', (e)=>{
@@ -258,6 +260,7 @@ export class GuiManager{
 	    if(this.connectionState == 'death'){
 	    	deathScreen.style["display"] = "block"
 	    	reJoinButton.style["display"] = "block"
+	    	deathTexts.style["display"] = "block"
 	    	if(this.previousConnectionState != "death"){
 	    		this.previousConnectionState = "death"
 	    		this.deathTimeStamp = Date.now()
@@ -274,6 +277,7 @@ export class GuiManager{
 	    }else{
 		    deathScreen.style["display"] = "none"
 		    reJoinButton.style["display"] = "none"
+		    deathTexts.style["display"] = "none"
 		    this.previousConnectionState = this.connectionState
 		    
 	    }

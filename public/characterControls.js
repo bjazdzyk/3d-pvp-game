@@ -7,6 +7,7 @@ const A = 'KeyA'
 const D = 'KeyD'
 const MOUSEL = 'Mouse1'
 const MOUSER = 'Mouse3'
+const SHIFT = 'ShiftLeft'
 
 
 
@@ -132,11 +133,10 @@ export class CharacterControls{
 			this.directionOffset = this.countDirectionOffset(keys)
 		}
 
-
 		if(dirPressed && (this.currentAction == 'Run' || this.currentAction == 'Jump')){
 			//rotate model
 			this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + this.directionOffset)
-	        this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.4)
+	        this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.6)
 
 	     	//calculate direction
 	        this.camera.getWorldDirection(this.walkDirection)
