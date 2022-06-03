@@ -417,8 +417,8 @@ socket.on('joined', (skin)=>{
       treeModel = gltf.scene
 
 
-      for(let i=-100; i<100; i+=15){
-        for(let j=-100; j<100; j+=15){
+      for(let i=-50; i<50; i+=15){
+        for(let j=-50; j<50; j+=15){
           const x = i + Math.random()*10
           const z = j + Math.random()*10
           if((x<-arenaSize/2-2 || x>arenaSize/2+2) || (z<-arenaSize/2-2 || z>arenaSize/2+2)){
@@ -429,17 +429,17 @@ socket.on('joined', (skin)=>{
             treeClone.scale.set(size, size, size)
             scene.add(treeClone)
 
-            const treeMixer = new THREE.AnimationMixer(treeClone)
-            const treeActions = {}
-            clips['tree'] = gltf.animations
-            for(let k=0; k<clips['tree'].length; k++){
-              const clip = clips['tree'][k]
-              const action = treeMixer.clipAction(clip)
-              treeActions[clip.name] = action
-            }
-            treeActions["Idle"].play()
+            // const treeMixer = new THREE.AnimationMixer(treeClone)
+            // const treeActions = {}
+            // clips['tree'] = gltf.animations
+            // for(let k=0; k<clips['tree'].length; k++){
+            //   const clip = clips['tree'][k]
+            //   const action = treeMixer.clipAction(clip)
+            //   treeActions[clip.name] = action
+            // }
+            // treeActions["Idle"].play()
 
-            treeMixers.push(treeMixer)
+            // treeMixers.push(treeMixer)
           }
         }
       }

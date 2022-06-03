@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
       currentAction:"Idle",
       position:{x:0, y:0, z:0}, 
       walkDirection:{x:0, y:0, z:-1}, 
-      velocity:{'Run':0.2, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
+      velocity:{'Run':0.015, 'Jump':0.01, 'Dodge':0.018, 'DodgePunch':0.018}, 
       maxHp:200, 
       hp:200, 
       lockAction:false, 
@@ -133,7 +133,7 @@ io.on('connection', (socket) => {
         currentAction:"Idle",
         position:{x:0, y:0, z:0}, 
         walkDirection:{x:0, y:0, z:-1}, 
-        velocity:{'Run':0.2, 'Jump':0.12, 'Dodge':0.18, 'DodgePunch':0.13}, 
+        velocity:{'Run':0.015, 'Jump':0.01, 'Dodge':0.018, 'DodgePunch':0.018}, 
         maxHp:200, 
         hp:200, 
         lockAction:false, 
@@ -504,7 +504,7 @@ const loop = setInterval(()=>{
       }
     }
   }
-}, 20)
+}, 0)
 
 
 
